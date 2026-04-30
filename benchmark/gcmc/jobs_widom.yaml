@@ -1,0 +1,11 @@
+job_type: "Widom"
+folder:
+    cifs_folder: "/mnt/d/Project/GTSR/benchmark/gcmc/data/miss"
+    jobs_folder: "/mnt/d/Project/GTSR/benchmark/gcmc/data/jobs/widom"
+file:
+    force_field_json: "/mnt/d/Project/GTSR/benchmark/gcmc/preparation/paras.json"
+    molecules_json: ["/mnt/d/Project/GTSR/benchmark/gcmc/preparation/h2o.json"]
+setting:
+    temperature: 298
+    n_cycles: 5000
+    print_every: 1000

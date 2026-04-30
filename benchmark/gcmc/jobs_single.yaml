@@ -1,0 +1,13 @@
+job_type: "Single"
+folder:
+    cifs_folder: "/mnt/d/Project/AMSR/benchmark/gcmc/cifs"
+    jobs_folder: "/mnt/d/Project/AMSR/benchmark/gcmc/jobs/single"
+file:
+    force_field_json: "/mnt/d/Project/AMSR/benchmark/gcmc/preparation/paras.json"
+    molecules_json: "/mnt/d/Project/AMSR/benchmark/gcmc/preparation/co2.json"
+setting:
+    temperature: 298
+    pressure: 100000
+    n_cycles: 20000
+    n_cycles_init: 10000
+    print_every: 1000

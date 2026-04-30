@@ -99,4 +99,4 @@ dependencies:
       - triton==3.4.0
       - uncertainties==3.2.3
       - urllib3==2.6.3
-prefix: /scratch/guobinzhao/software/miniconda/envs/raspa_old
+prefix: /scratch/software/miniconda/envs/raspa3
