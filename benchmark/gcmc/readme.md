@@ -10,7 +10,7 @@
 # Create environment
 conda env create -f environment.yml
 
-# Run a single job
+# Generate input for jobs
 python main.py [job.yaml]
 
 # Run batch jobs in parallel
