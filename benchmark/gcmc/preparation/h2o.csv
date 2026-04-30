@@ -1,0 +1,5 @@
+﻿CriticalTemperature,CriticalPressure,AcentricFactor,Type,index,pseudoAtoms,x,y,z,BondsIndex1,BondsIndex2
+647.14,22064000,0.344,rigid,0,O_H2O,-7.147,-0.096,1.844,0,1
+,,,,1,H_H2O,-7.599,-0.678,1.233,0,2
+,,,,2,H_H2O,-6.635,-0.684,2.4,0,3
+,,,,3,M_H2O,-7.14,-0.246,1.837,,
