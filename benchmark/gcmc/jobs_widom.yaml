@@ -1,10 +1,10 @@
 job_type: "Widom"
 folder:
-    cifs_folder: "/mnt/d/Project/GTSR/benchmark/gcmc/data/miss"
-    jobs_folder: "/mnt/d/Project/GTSR/benchmark/gcmc/data/jobs/widom"
+    cifs_folder: "/path/to/cifs"
+    jobs_folder: "/path/to/jobs/widom"
 file:
-    force_field_json: "/mnt/d/Project/GTSR/benchmark/gcmc/preparation/paras.json"
-    molecules_json: ["/mnt/d/Project/GTSR/benchmark/gcmc/preparation/h2o.json"]
+    force_field_json: "/path/to/preparation/paras.json"
+    molecules_json: ["/path/to/preparation/h2o.json"]
 setting:
     temperature: 298
     n_cycles: 5000

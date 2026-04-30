@@ -1,11 +1,11 @@
 job_type: "Mixture"
 folder:
-    cifs_folder: "/mnt/d/Project/AMSR/benchmark/gcmc/cifs"
-    jobs_folder: "/mnt/d/Project/AMSR/benchmark/gcmc/jobs/Mixture"
+    cifs_folder: "/path/to/cifs"
+    jobs_folder: "/path/to/jobs/"
 file:
-    force_field_json: "/mnt/d/Project/AMSR/benchmark/gcmc/preparation/paras.json"
-    molecules_json: ["/mnt/d/Project/AMSR/benchmark/gcmc/preparation/co2.json",
-                    "/mnt/d/Project/AMSR/benchmark/gcmc/preparation/n2.json"]
+    force_field_json: "/path/to/preparation/paras.json"
+    molecules_json: ["/path/to/preparation/co2.json",
+                    "/path/to/preparation/n2.json"]
 setting:
     temperature: 298
     pressure: 100000
