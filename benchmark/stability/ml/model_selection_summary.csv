@@ -1,0 +1,11 @@
+Dataset,Split,Acc,Prec,Recall,F1,AUC
+Top-10,Test set,0.7354,0.7548,0.8177,0.785,0.8312
+Top-20,Test set,0.7569,0.7729,0.8333,0.802,0.8429
+Top-30,Test set,0.7723,0.7682,0.8802,0.8204,0.8596
+Top-40,Test set,0.7723,0.7783,0.8594,0.8168,0.867
+Top-50,Test set,0.7754,0.7742,0.875,0.8215,0.8647
+Top-10,Training set,1,1,1,1,1
+Top-20,Training set,1,1,1,1,1
+Top-30,Training set,1,1,1,1,1
+Top-40,Training set,1,1,1,1,1
+Top-50,Training set,1,1,1,1,1
