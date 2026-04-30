@@ -25,8 +25,7 @@ pip install -r GTsR3/requirements.txt
 - `free`: if `r2f=1`, labels atoms removed from `R -> F`; if `r2f=0`, uses `R` with all-zero labels.
 - `coordinated`: uses `F` when available, otherwise `R`; if `f2a=1`, labels atoms removed from source `-> A`; if `f2a=0`, uses all-zero labels.
 
-Both tasks build crystal graphs with cutoff `8.0` and `12` nearest neighbors. Graph JSON files do not include
-`symbols` or `nn_num`.
+Both tasks build crystal graphs with cutoff `8.0` and `12` nearest neighbors.
 
 ## Prepare
 
