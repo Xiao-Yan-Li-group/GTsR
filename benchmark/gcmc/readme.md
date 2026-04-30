@@ -1,672 +1,590 @@
+# raspalib — Python API Reference
+
+`raspalib` is a Python binding for the RASPA3 Monte Carlo simulation engine, providing classes for constructing and running grand-canonical and other molecular simulations.
+
+---
+
+## Quick Start
+
+```bash
+# Create environment
 conda env create -f environment.yml
+
+# Run a single job
 python main.py [job.yaml]
+
+# Run batch jobs in parallel
 bash run.sh [path/to/jobs] [# of CPUs]
+```
 
-Help on module raspalib:
+---
 
-NAME
-    raspalib
+## Class Overview
 
-CLASSES
-    pybind11_builtins.pybind11_object(builtins.object)
-        Atom
-        Component
-        ConnectivityTable
-        ForceField
-        Framework
-        InputReader
-        IntraMolecularPotentials
-        Loadings
-        MCMoveProbabilities
-        MonteCarlo
-        PropertyLambdaProbabilityHistogram
-        PropertyLoading
-        PseudoAtom
-        RandomNumber
-        RunningEnergy
-        SimulationBox
-        System
-        VDWParameters
-        double3
-        int3
+| Class | Description |
+|---|---|
+| [`Atom`](#atom) | Represents a single atom with position, charge, and identity |
+| [`Component`](#component) | A molecular component (adsorbate or cation) |
+| [`ConnectivityTable`](#connectivitytable) | Molecular connectivity/bonding information |
+| [`ForceField`](#forcefield) | Force field parameters and mixing rules |
+| [`Framework`](#framework) | Porous framework structure loaded from file |
+| [`InputReader`](#inputreader) | Reads simulation configuration from JSON |
+| [`IntraMolecularPotentials`](#intramolecularpotentials) | Intra-molecular interaction terms |
+| [`Loadings`](#loadings) | Molecule loading counts per component |
+| [`MCMoveProbabilities`](#MCMoveProbabilities) | Probabilities for each Monte Carlo move type |
+| [`MonteCarlo`](#montecarlo) | Main simulation engine |
+| [`PropertyLambdaProbabilityHistogram`](#propertylambdaprobabilityhistogram) | λ-histogram for free energy calculations |
+| [`PropertyLoading`](#propertyloading) | Averaged loading statistics over blocks |
+| [`PseudoAtom`](#pseudoatom) | Force field atom type definition |
+| [`RandomNumber`](#randomnumber) | Seeded random number generator |
+| [`RunningEnergy`](#runningenergy) | Accumulates energy contributions |
+| [`SimulationBox`](#simulationbox) | Periodic simulation cell (rectangular or triclinic) |
+| [`System`](#system) | A complete simulation system |
+| [`VDWParameters`](#vdwparameters) | Van der Waals ε/σ parameters |
+| [`double3`](#double3) | 3-component float vector |
+| [`int3`](#int3) | 3-component integer vector |
 
-    class Atom(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      Atom
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(*args, **kwargs)
-     |      Overloaded function.
-     |
-     |      1. __init__(self: raspalib.Atom) -> None
-     |
-     |      2. __init__(self: raspalib.Atom, position: raspalib.double3, charge: float = 0.0, lambda: float = 0.0, moleculeId: int = 0, type: int = 0, componentId: int = 0, groupId: bool = 0, isFractional: bool = 0) -> None
-     |
-     |  __repr__(...)
-     |      __repr__(self: raspalib.Atom) -> str
-     |
-     |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |
-     |  position
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+---
 
-    class Component(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      Component
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(*args, **kwargs)
-     |      Overloaded function.
-     |
-     |      1. __init__(self: raspalib.Component, componentId: int, forceField: raspalib.ForceField, componentName: str, criticalTemperature: float, criticalPressure: float, acentricFactor: float, definedAtoms: List[raspalib.Atom], connectivitytable: raspalib.ConnectivityTable = <raspalib.ConnectivityTable object at 0x79e4b9e41d30>, intraMolecularPotentials: raspalib.IntraMolecularPotentials = <raspalib.IntraMolecularPotentials object at 0x79e4b9e41d70>, numberOfBlocks: int = 5, numberOfLambdaBins: int = 41, particleProbabilities: raspalib.MCMoveProbabilities, fugacityCoefficient: Optional[float] = None, thermodynamicIntegration: bool = False) -> None
-     |
-     |      2. __init__(self: raspalib.Component, type: raspalib.Component.Type = <Type.Adsorbate: 0>, componentId: int, forceField: raspalib.ForceField, componentName: str, fileName: str, numberOfBlocks: int = 5, numberOfLambdaBins: int = 41, particleProbabilities: raspalib.MCMoveProbabilities = <raspalib.MCMoveProbabilities object at 0x79e4b9e41db0>, fugacityCoefficient: Optional[float] = None, thermodynamicIntegration: bool = False) -> None
-     |
-     |  __repr__(...)
-     |      __repr__(self: raspalib.Component) -> str
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  lambdaGC
-     |
-     |  mc_moves_statistics
-     |
-     |  name
-     |
-     |  ----------------------------------------------------------------------
-     |  Data and other attributes defined here:
-     |
-     |  Adsorbate = <Type.Adsorbate: 0>
-     |
-     |  Cation = <Type.Cation: 1>
-     |
-     |  Type = <class 'raspalib.Component.Type'>
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+## API Reference
 
-    class ConnectivityTable(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      ConnectivityTable
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.ConnectivityTable) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+### Atom
 
-    class ForceField(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      ForceField
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(*args, **kwargs)
-     |      Overloaded function.
-     |
-     |      1. __init__(self: raspalib.ForceField, pseudoAtoms: List[raspalib.PseudoAtom], parameters: List[raspalib.VDWParameters], mixingRule: ForceField@forcefield::MixingRule, cutOffFrameworkVDW: float = 12.0, cutOffMoleculeVDW: float = 12.0, cutOffCoulomb: float = 12.0, shifted: bool = True, tailCorrections: bool = False, useCharge: bool = True) -> None
-     |
-     |      2. __init__(self: raspalib.ForceField, fileName: str = 'force_field.json') -> None
-     |
-     |  __repr__(...)
-     |      __repr__(self: raspalib.ForceField) -> str
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  pseudoAtoms
-     |
-     |  vdwParameters
-     |
-     |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |
-     |  useCharge
-     |
-     |  ----------------------------------------------------------------------
-     |  Data and other attributes defined here:
-     |
-     |  Lorentz_Berthelot = <MixingRule.Lorentz_Berthelot: 0>
-     |
-     |  MixingRule = <class 'raspalib.ForceField.MixingRule'>
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+Represents a single particle in the simulation.
 
-    class Framework(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      Framework
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(*args, **kwargs)
-     |      Overloaded function.
-     |
-     |      1. __init__(self: raspalib.Framework, frameworkId: int, forceField: raspalib.ForceField, componentName: str, simulationBox: raspalib.SimulationBox, spaceGroupHallNumber: int, definedAtoms: List[raspalib.Atom], numberOfUnitCells: raspalib.int3) -> None
-     |
-     |      2. __init__(self: raspalib.Framework, frameworkId: int, forceField: raspalib.ForceField, componentName: str, fileName: Optional[str], numberOfUnitCells: raspalib.int3, useChargesFrom: raspalib.Framework.UseChargesFrom = <UseChargesFrom.PseudoAtoms: 0>) -> None
-     |
-     |  __repr__(...)
-     |      __repr__(self: raspalib.Framework) -> str
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  name
-     |
-     |  ----------------------------------------------------------------------
-     |  Data and other attributes defined here:
-     |
-     |  UseChargesFrom = <class 'raspalib.Framework.UseChargesFrom'>
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+**Constructor**
 
-    class InputReader(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      InputReader
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.InputReader, fileName: str = 'simulation.json') -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  forceField
-     |
-     |  numberOfBlocks
-     |
-     |  numberOfCycles
-     |
-     |  numberOfEquilibrationCycles
-     |
-     |  numberOfInitializationCycles
-     |
-     |  optimizeMCMovesEvery
-     |
-     |  printEvery
-     |
-     |  rescaleWangLandauEvery
-     |
-     |  systems
-     |
-     |  writeBinaryRestartEvery
-     |
-     |  writeEvery
-     |
-     |  ----------------------------------------------------------------------
-     |  Data and other attributes defined here:
-     |
-     |  Breakthrough = <SimulationType.Breakthrough: 5>
-     |
-     |  Fitting = <SimulationType.Fitting: 7>
-     |
-     |  Minimization = <SimulationType.Minimization: 3>
-     |
-     |  MixturePrediction = <SimulationType.MixturePrediction: 6>
-     |
-     |  MolecularDynamics = <SimulationType.MolecularDynamics: 2>
-     |
-     |  MonteCarlo = <SimulationType.MonteCarlo: 0>
-     |
-     |  MonteCarloTransitionMatrix = <SimulationType.MonteCarloTransitionMatri...
-     |
-     |  ParallelTempering = <SimulationType.ParallelTempering: 8>
-     |
-     |  SimulationType = <class 'raspalib.InputReader.SimulationType'>
-     |
-     |  Test = <SimulationType.Test: 4>
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+```python
+Atom()
+Atom(
+    position: double3,
+    charge: float = 0.0,
+    lambda: float = 0.0,
+    moleculeId: int = 0,
+    type: int = 0,
+    componentId: int = 0,
+    groupId: bool = False,
+    isFractional: bool = False
+)
+```
 
-    class IntraMolecularPotentials(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      IntraMolecularPotentials
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.IntraMolecularPotentials) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+**Properties**
 
-    class Loadings(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      Loadings
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.Loadings, arg0: int) -> None
-     |
-     |  printStatus(...)
-     |      printStatus(*args, **kwargs)
-     |      Overloaded function.
-     |
-     |      1. printStatus(self: raspalib.Loadings, arg0: raspalib.Component, arg1: Optional[float], arg2: Optional[raspalib.int3]) -> str
-     |
-     |      2. printStatus(self: raspalib.Loadings, arg0: raspalib.Component, arg1: raspalib.Loadings, arg2: raspalib.Loadings, arg3: Optional[float], arg4: Optional[raspalib.int3]) -> str
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  numberOfMolecules
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+| Name | Description |
+|---|---|
+| `position` | Cartesian coordinates (`double3`) |
 
-    class MCMoveProbabilities(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      MCMoveProbabilities
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.MCMoveProbabilities, translationProbability: float = 0.0, randomTranslationProbability: float = 0.0, rotationProbability: float = 0.0, randomRotationProbability: float = 0.0, volumeChangeProbability: float = 0.0, reinsertionCBMCProbability: float = 0.0, identityChangeProbability: float = 0.0, swapProbability: float = 0.0, swapCBMCProbability: float = 0.0, swapCFCMCProbability: float = 0.0, swapCBCFCMCProbability: float = 0.0, gibbsVolumeChangeProbability: float = 0.0, gibbsSwapCBMCProbability: float = 0.0, gibbsSwapCFCMCProbability: float = 0.0, widomProbability: float = 0.0, widomCFCMCProbability: float = 0.0, widomCBCFCMCProbability: float = 0.0, parallelTemperingProbability: float = 0.0, hybridMCProbability: float = 0.0) -> None
-     |
-     |  join(...)
-     |      join(self: raspalib.MCMoveProbabilities, arg0: raspalib.MCMoveProbabilities) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+---
 
-    class MonteCarlo(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      MonteCarlo
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(*args, **kwargs)
-     |      Overloaded function.
-     |
-     |      1. __init__(self: raspalib.MonteCarlo, numberOfCycles: int, numberOfInitializationCycles: int, numberOfEquilibrationCycles: int = 0, printEvery: int = 5000, writeBinaryRestartEvery: int = 5000, rescaleWangLandauEvery: int = 1000, optimizeMCMovesEvery: int = 100, systems: List[raspalib.System], randomSeed: raspalib.RandomNumber = <raspalib.RandomNumber object at 0x79e4b9e48a30>, numberOfBlocks: int = 5, outputToFiles: bool = False) -> None
-     |
-     |      2. __init__(self: raspalib.MonteCarlo, inputReader: raspalib.InputReader) -> None
-     |
-     |  cycle(...)
-     |      cycle(self: raspalib.MonteCarlo) -> None
-     |
-     |  equilibrate(...)
-     |      equilibrate(self: raspalib.MonteCarlo) -> None
-     |
-     |  initialize(...)
-     |      initialize(self: raspalib.MonteCarlo) -> None
-     |
-     |  production(...)
-     |      production(self: raspalib.MonteCarlo) -> None
-     |
-     |  run(...)
-     |      run(self: raspalib.MonteCarlo) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  systems
-     |
-     |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |
-     |  simulationStage
-     |
-     |  ----------------------------------------------------------------------
-     |  Data and other attributes defined here:
-     |
-     |  Equilibration = <SimulationStage.Equilibration: 2>
-     |
-     |  Initialization = <SimulationStage.Initialization: 1>
-     |
-     |  Production = <SimulationStage.Production: 3>
-     |
-     |  SimulationStage = <class 'raspalib.MonteCarlo.SimulationStage'>
-     |
-     |  Uninitialized = <SimulationStage.Uninitialized: 0>
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+### Component
 
-    class PropertyLambdaProbabilityHistogram(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      PropertyLambdaProbabilityHistogram
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.PropertyLambdaProbabilityHistogram) -> None
-     |
-     |  normalizedAverageProbabilityHistogram(...)
-     |      normalizedAverageProbabilityHistogram(self: raspalib.PropertyLambdaProbabilityHistogram) -> Tuple[List[float], List[float]]
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  biasFactor
-     |
-     |  histogram
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+A molecular species to be simulated (adsorbate or cation).
 
-    class PropertyLoading(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      PropertyLoading
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.PropertyLoading, arg0: int, arg1: int) -> None
-     |
-     |  __repr__(...)
-     |      __repr__(self: raspalib.PropertyLoading) -> str
-     |
-     |  averageLoading(...)
-     |      averageLoading(self: raspalib.PropertyLoading) -> Tuple[raspalib.Loadings, raspalib.Loadings]
-     |
-     |  averageLoadingNumberOfMolecules(...)
-     |      averageLoadingNumberOfMolecules(self: raspalib.PropertyLoading, arg0: int) -> Tuple[float, float]
-     |
-     |  writeAveragesStatistics(...)
-     |      writeAveragesStatistics(self: raspalib.PropertyLoading, arg0: List[raspalib.Component], arg1: Optional[float], arg2: Optional[raspalib.int3]) -> str
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+**Constructor — from explicit atoms**
 
-    class PseudoAtom(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      PseudoAtom
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.PseudoAtom, name: str, frameworkType: bool, mass: float, charge: float, polarizability: float = 0.0, atomicNumber: int, printToPDB: bool = True, source: str = '') -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+```python
+Component(
+    componentId: int,
+    forceField: ForceField,
+    componentName: str,
+    criticalTemperature: float,
+    criticalPressure: float,
+    acentricFactor: float,
+    definedAtoms: List[Atom],
+    connectivitytable: ConnectivityTable = ...,
+    intraMolecularPotentials: IntraMolecularPotentials = ...,
+    numberOfBlocks: int = 5,
+    numberOfLambdaBins: int = 41,
+    particleProbabilities: MCMoveProbabilities,
+    fugacityCoefficient: Optional[float] = None,
+    thermodynamicIntegration: bool = False
+)
+```
 
-    class RandomNumber(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      RandomNumber
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.RandomNumber, seed: int = 12) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+**Constructor — from molecule file**
 
-    class RunningEnergy(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      RunningEnergy
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.RunningEnergy) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |
-     |  frameworkMoleculeVDW
-     |
-     |  moleculeMoleculeVDW
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+```python
+Component(
+    type: Component.Type = Component.Adsorbate,
+    componentId: int,
+    forceField: ForceField,
+    componentName: str,
+    fileName: str,
+    numberOfBlocks: int = 5,
+    numberOfLambdaBins: int = 41,
+    particleProbabilities: MCMoveProbabilities = ...,
+    fugacityCoefficient: Optional[float] = None,
+    thermodynamicIntegration: bool = False
+)
+```
 
-    class SimulationBox(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      SimulationBox
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(*args, **kwargs)
-     |      Overloaded function.
-     |
-     |      1. __init__(self: raspalib.SimulationBox, a: float, b: float, c: float) -> None
-     |
-     |      2. __init__(self: raspalib.SimulationBox, a: float, b: float, c: float, alpha: float, beta: float, gamma: float) -> None
-     |
-     |      3. __init__(self: raspalib.SimulationBox, a: float, b: float, c: float, alpha: float, beta: float, gamma: float, type: raspalib.SimulationBox.Type) -> None
-     |
-     |      4. __init__(self: raspalib.SimulationBox, arg0: double3x3@double3x3, arg1: raspalib.SimulationBox.Type) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  lengthA
-     |
-     |  lengthB
-     |
-     |  lengthC
-     |
-     |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |
-     |  type
-     |
-     |  ----------------------------------------------------------------------
-     |  Data and other attributes defined here:
-     |
-     |  Rectangular = <Type.Rectangular: 0>
-     |
-     |  Triclinic = <Type.Triclinic: 1>
-     |
-     |  Type = <class 'raspalib.SimulationBox.Type'>
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+**Properties**
 
-    class System(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      System
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.System, systemId: int, forceField: raspalib.ForceField, simulationBox: Optional[raspalib.SimulationBox] = None, externalTemperature: float, externalPressure: Optional[float] = None, heliumVoidFraction: float = 0.0, frameworkComponents: Optional[raspalib.Framework] = [], components: List[raspalib.Component], initialPositions: List[List[raspalib.double3]] = [], initialNumberOfMolecules: List[int] = [], numberOfBlocks: int = 5, systemProbabilities: raspalib.MCMoveProbabilities = <raspalib.MCMoveProbabilities object at 0x79e4b9e43cb0>, sampleMoviesEvery: Optional[int] = None) -> None
-     |
-     |  __repr__(...)
-     |      __repr__(self: raspalib.System) -> str
-     |
-     |  computeTotalEnergies(...)
-     |      computeTotalEnergies(self: raspalib.System) -> raspalib.RunningEnergy
-     |
-     |  frameworkMass(...)
-     |      frameworkMass(self: raspalib.System) -> Optional[float]
-     |
-     |  writeMCMoveStatistics(...)
-     |      writeMCMoveStatistics(self: raspalib.System) -> str
-     |
-     |  ----------------------------------------------------------------------
-     |  Readonly properties defined here:
-     |
-     |  averageLoadings
-     |
-     |  components
-     |
-     |  inputPressure
-     |
-     |  loadings
-     |
-     |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |
-     |  atomData
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+| Name | Access | Description |
+|---|---|---|
+| `name` | read-only | Component name string |
+| `lambdaGC` | read-only | λ parameter for CFCMC |
+| `mc_moves_statistics` | read-only | MC move acceptance statistics |
 
-    class VDWParameters(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      VDWParameters
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.VDWParameters, epsilon: float, sigma: float) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+**Enum: `Component.Type`**
 
-    class double3(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      double3
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.double3, x: float = 0.0, y: float = 0.0, z: float = 0.0) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |
-     |  x
-     |
-     |  y
-     |
-     |  z
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+| Value | Description |
+|---|---|
+| `Component.Adsorbate` | Guest molecule |
+| `Component.Cation` | Cation species |
 
-    class int3(pybind11_builtins.pybind11_object)
-     |  Method resolution order:
-     |      int3
-     |      pybind11_builtins.pybind11_object
-     |      builtins.object
-     |
-     |  Methods defined here:
-     |
-     |  __init__(...)
-     |      __init__(self: raspalib.int3, x: int = 0, y: int = 0, z: int = 0) -> None
-     |
-     |  ----------------------------------------------------------------------
-     |  Data descriptors defined here:
-     |
-     |  x
-     |
-     |  y
-     |
-     |  z
-     |
-     |  ----------------------------------------------------------------------
-     |  Static methods inherited from pybind11_builtins.pybind11_object:
-     |
-     |  __new__(*args, **kwargs) from pybind11_builtins.pybind11_type
-     |      Create and return a new object.  See help(type) for accurate signature.
+---
 
-FILE
-    /miniconda3/envs/raspa3/lib/python3.9/site-packages/raspalib.cpython-39-x86_64-linux-gnu.so
+### ConnectivityTable
+
+Stores molecular bonding/connectivity information.
+
+```python
+ConnectivityTable()
+```
+
+---
+
+### ForceField
+
+Defines inter-atomic interaction parameters.
+
+**Constructor — explicit**
+
+```python
+ForceField(
+    pseudoAtoms: List[PseudoAtom],
+    parameters: List[VDWParameters],
+    mixingRule: ForceField.MixingRule,
+    cutOffFrameworkVDW: float = 12.0,
+    cutOffMoleculeVDW: float = 12.0,
+    cutOffCoulomb: float = 12.0,
+    shifted: bool = True,
+    tailCorrections: bool = False,
+    useCharge: bool = True
+)
+```
+
+**Constructor — from file**
+
+```python
+ForceField(fileName: str = 'force_field.json')
+```
+
+**Properties**
+
+| Name | Access | Description |
+|---|---|---|
+| `pseudoAtoms` | read-only | List of pseudo-atom types |
+| `vdwParameters` | read-only | VDW parameter table |
+| `useCharge` | read/write | Enable electrostatics |
+
+**Enum: `ForceField.MixingRule`**
+
+| Value | Description |
+|---|---|
+| `ForceField.Lorentz_Berthelot` | Lorentz-Berthelot combining rules |
+
+---
+
+### Framework
+
+A porous solid framework structure.
+
+**Constructor — explicit**
+
+```python
+Framework(
+    frameworkId: int,
+    forceField: ForceField,
+    componentName: str,
+    simulationBox: SimulationBox,
+    spaceGroupHallNumber: int,
+    definedAtoms: List[Atom],
+    numberOfUnitCells: int3
+)
+```
+
+**Constructor — from file**
+
+```python
+Framework(
+    frameworkId: int,
+    forceField: ForceField,
+    componentName: str,
+    fileName: Optional[str],
+    numberOfUnitCells: int3,
+    useChargesFrom: Framework.UseChargesFrom = Framework.PseudoAtoms
+)
+```
+
+**Properties**
+
+| Name | Access | Description |
+|---|---|---|
+| `name` | read-only | Framework name |
+
+**Enum: `Framework.UseChargesFrom`**
+
+| Value | Description |
+|---|---|
+| `Framework.PseudoAtoms` | Use charges from pseudo-atom definitions |
+
+---
+
+### InputReader
+
+Parses a `simulation.json` configuration file.
+
+```python
+InputReader(fileName: str = 'simulation.json')
+```
+
+**Properties**
+
+| Name | Description |
+|---|---|
+| `forceField` | Loaded `ForceField` |
+| `systems` | List of configured `System` objects |
+| `numberOfCycles` | Production cycle count |
+| `numberOfInitializationCycles` | Initialization cycle count |
+| `numberOfEquilibrationCycles` | Equilibration cycle count |
+| `numberOfBlocks` | Statistical block count |
+| `printEvery` | Output interval (cycles) |
+| `writeEvery` | File write interval (cycles) |
+| `writeBinaryRestartEvery` | Restart write interval |
+| `optimizeMCMovesEvery` | MC move optimization interval |
+| `rescaleWangLandauEvery` | Wang-Landau rescaling interval |
+
+**Enum: `InputReader.SimulationType`**
+
+| Value | Int |
+|---|---|
+| `MonteCarlo` | 0 |
+| `MolecularDynamics` | 2 |
+| `Minimization` | 3 |
+| `Test` | 4 |
+| `Breakthrough` | 5 |
+| `MixturePrediction` | 6 |
+| `Fitting` | 7 |
+| `ParallelTempering` | 8 |
+
+---
+
+### IntraMolecularPotentials
+
+Placeholder for intra-molecular bonded interactions.
+
+```python
+IntraMolecularPotentials()
+```
+
+---
+
+### Loadings
+
+Tracks the number of molecules per component.
+
+```python
+Loadings(numberOfComponents: int)
+```
+
+**Methods**
+
+```python
+printStatus(component, pressure, unitCells) -> str
+printStatus(component, loadings, loadings2, pressure, unitCells) -> str
+```
+
+**Properties**
+
+| Name | Description |
+|---|---|
+| `numberOfMolecules` | Current molecule count |
+
+---
+
+### MCMoveProbabilities
+
+Specifies relative probabilities for each MC move type.
+
+```python
+MCMoveProbabilities(
+    translationProbability: float = 0.0,
+    randomTranslationProbability: float = 0.0,
+    rotationProbability: float = 0.0,
+    randomRotationProbability: float = 0.0,
+    volumeChangeProbability: float = 0.0,
+    reinsertionCBMCProbability: float = 0.0,
+    swapProbability: float = 0.0,
+    swapCBMCProbability: float = 0.0,
+    swapCFCMCProbability: float = 0.0,
+    widomProbability: float = 0.0,
+    gibbsSwapCBMCProbability: float = 0.0,
+    # ... additional move types
+)
+```
+
+**Methods**
+
+```python
+join(other: MCMoveProbabilities) -> None   # merge two probability sets
+```
+
+---
+
+### MonteCarlo
+
+The primary simulation driver.
+
+**Constructor — explicit**
+
+```python
+MonteCarlo(
+    numberOfCycles: int,
+    numberOfInitializationCycles: int,
+    numberOfEquilibrationCycles: int = 0,
+    printEvery: int = 5000,
+    writeBinaryRestartEvery: int = 5000,
+    rescaleWangLandauEvery: int = 1000,
+    optimizeMCMovesEvery: int = 100,
+    systems: List[System],
+    randomSeed: RandomNumber = ...,
+    numberOfBlocks: int = 5,
+    outputToFiles: bool = False
+)
+```
+
+**Constructor — from InputReader**
+
+```python
+MonteCarlo(inputReader: InputReader)
+```
+
+**Methods**
+
+| Method | Description |
+|---|---|
+| `run()` | Execute full simulation (init + equilibrate + production) |
+| `initialize()` | Run initialization phase only |
+| `equilibrate()` | Run equilibration phase only |
+| `production()` | Run production phase only |
+| `cycle()` | Execute a single MC cycle |
+
+**Properties**
+
+| Name | Access | Description |
+|---|---|---|
+| `systems` | read-only | List of `System` objects |
+| `simulationStage` | read/write | Current `SimulationStage` |
+
+**Enum: `MonteCarlo.SimulationStage`**
+
+| Value | Int |
+|---|---|
+| `Uninitialized` | 0 |
+| `Initialization` | 1 |
+| `Equilibration` | 2 |
+| `Production` | 3 |
+
+---
+
+### PropertyLambdaProbabilityHistogram
+
+Tracks λ-probability histograms for free energy calculations.
+
+```python
+PropertyLambdaProbabilityHistogram()
+```
+
+**Methods**
+
+```python
+normalizedAverageProbabilityHistogram() -> Tuple[List[float], List[float]]
+```
+
+**Properties**
+
+| Name | Description |
+|---|---|
+| `histogram` | Raw histogram data |
+| `biasFactor` | Wang-Landau bias factors |
+
+---
+
+### PropertyLoading
+
+Accumulates block-averaged loading statistics.
+
+```python
+PropertyLoading(numberOfBlocks: int, numberOfComponents: int)
+```
+
+**Methods**
+
+```python
+averageLoading() -> Tuple[Loadings, Loadings]
+averageLoadingNumberOfMolecules(componentIndex: int) -> Tuple[float, float]
+writeAveragesStatistics(components, pressure, unitCells) -> str
+```
+
+---
+
+### PseudoAtom
+
+Defines a force field atom type.
+
+```python
+PseudoAtom(
+    name: str,
+    frameworkType: bool,
+    mass: float,
+    charge: float,
+    polarizability: float = 0.0,
+    atomicNumber: int,
+    printToPDB: bool = True,
+    source: str = ''
+)
+```
+
+---
+
+### RandomNumber
+
+Seeded pseudo-random number generator.
+
+```python
+RandomNumber(seed: int = 12)
+```
+
+---
+
+### RunningEnergy
+
+Accumulates decomposed energy contributions during simulation.
+
+```python
+RunningEnergy()
+```
+
+**Properties**
+
+| Name | Description |
+|---|---|
+| `frameworkMoleculeVDW` | Framework–molecule VDW energy |
+| `moleculeMoleculeVDW` | Molecule–molecule VDW energy |
+
+---
+
+### SimulationBox
+
+Defines the periodic simulation cell.
+
+**Constructors**
+
+```python
+SimulationBox(a, b, c)                              # orthogonal
+SimulationBox(a, b, c, alpha, beta, gamma)          # triclinic angles
+SimulationBox(a, b, c, alpha, beta, gamma, type)    # explicit type
+SimulationBox(matrix: double3x3, type)              # from cell matrix
+```
+
+**Properties**
+
+| Name | Access | Description |
+|---|---|---|
+| `lengthA` | read-only | Cell length a (Å) |
+| `lengthB` | read-only | Cell length b (Å) |
+| `lengthC` | read-only | Cell length c (Å) |
+| `type` | read/write | `Rectangular` or `Triclinic` |
+
+**Enum: `SimulationBox.Type`**
+
+| Value | Description |
+|---|---|
+| `SimulationBox.Rectangular` | Orthogonal cell |
+| `SimulationBox.Triclinic` | General triclinic cell |
+
+---
+
+### System
+
+A complete simulation system combining framework, components, and conditions.
+
+```python
+System(
+    systemId: int,
+    forceField: ForceField,
+    simulationBox: Optional[SimulationBox] = None,
+    externalTemperature: float,
+    externalPressure: Optional[float] = None,
+    heliumVoidFraction: float = 0.0,
+    frameworkComponents: Optional[List[Framework]] = [],
+    components: List[Component],
+    initialPositions: List[List[double3]] = [],
+    initialNumberOfMolecules: List[int] = [],
+    numberOfBlocks: int = 5,
+    systemProbabilities: MCMoveProbabilities = ...,
+    sampleMoviesEvery: Optional[int] = None
+)
+```
+
+**Methods**
+
+| Method | Description |
+|---|---|
+| `computeTotalEnergies()` | Returns current `RunningEnergy` |
+| `frameworkMass()` | Returns framework mass (g/mol) or `None` |
+| `writeMCMoveStatistics()` | Returns formatted move statistics string |
+
+**Properties**
+
+| Name | Access | Description |
+|---|---|---|
+| `components` | read-only | List of `Component` objects |
+| `loadings` | read-only | Current `Loadings` |
+| `averageLoadings` | read-only | Block-averaged `PropertyLoading` |
+| `inputPressure` | read-only | Specified external pressure |
+| `atomData` | read/write | Raw atom position/type array |
+
+---
+
+### VDWParameters
+
+Lennard-Jones ε and σ parameters for a pair interaction.
+
+```python
+VDWParameters(epsilon: float, sigma: float)
+```
+
+---
+
+### double3
+
+A 3-component vector of `float` values.
+
+```python
+double3(x: float = 0.0, y: float = 0.0, z: float = 0.0)
+```
+
+**Properties:** `x`, `y`, `z`
+
+---
+
+### int3
+
+A 3-component vector of `int` values.
+
+```python
+int3(x: int = 0, y: int = 0, z: int = 0)
+```
+
+**Properties:** `x`, `y`, `z`
+
+---
+
+## Module Location
+
+```
+/miniconda3/envs/raspa3/lib/python3.9/site-packages/raspalib.cpython-39-x86_64-linux-gnu.so
+```
