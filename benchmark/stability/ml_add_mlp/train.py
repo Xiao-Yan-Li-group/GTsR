@@ -81,13 +81,13 @@ train_prob = best_rf.predict_proba(X_train)[:, 1]
 train_pred = best_rf.predict(X_train)
 
 pd.DataFrame({
-    "true":  y_train,
+    "experiment":  y_train,
     "pred":  train_pred,
     "prob":  train_prob,
 }).to_csv("train_predictions.csv", index=False)
 
 pd.DataFrame({
-    "true": y_test,
+    "experiment": y_test,
     "pred": y_pred,
     "prob": y_prob,
 }).to_csv("test_predictions.csv", index=False)

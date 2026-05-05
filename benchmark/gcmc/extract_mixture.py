@@ -1,9 +1,9 @@
 import re
-import sys
 import argparse
 import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
+from typing import Optional
 
 
 UNIT_ALIASES = {
@@ -49,7 +49,7 @@ def parse_loadings(text: str, unit: str, loading_type: str) -> dict[str, tuple[f
     return result
 
 
-def extract_file(txt_path: Path, unit: str, loading_type: str) -> dict[str, tuple[float, float]] | None:
+def extract_file(txt_path: Path, unit: str, loading_type: str) -> Optional[dict[str, tuple[float, float]]]:
     text = txt_path.read_text(errors="ignore")
     loadings = parse_loadings(text, unit, loading_type)
     return loadings if loadings else None
@@ -82,7 +82,7 @@ def main():
     out_path = Path(args.out) if args.out else root / "mixture_results.csv"
 
     records: list[dict] = []
-    all_components: list[str] | None = None
+    all_components: Optional[list[str]] = None
 
     subdirs = sorted(d for d in root.iterdir() if d.is_dir())
     for sub in tqdm(subdirs, desc="Parsing"):

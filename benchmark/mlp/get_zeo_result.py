@@ -6,8 +6,8 @@ import csv
 from tqdm import tqdm
 
 
-path = "/mnt/d/Project/GTSR/benchmark/stability/mlp/zeopp"
-OUT = f"/mnt/d/Project/GTSR/benchmark/stability/mlp/results_zeopp.csv"
+path = "/path/to/zeopp result"
+OUT = f"/path/to/results_zeopp.csv"
 rows = []
 
 for res_file in tqdm(sorted(glob.glob(os.path.join(path, f"*.res")))):
