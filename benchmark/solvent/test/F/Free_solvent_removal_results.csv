@@ -1,2 +1,0 @@
-CIF,Solvent,Free_solvent,Number_of_free_solvent_molecules,Counterions,Number_of_counterions,Charge_removed,Total_atoms,Atoms_removed,Atoms_match_flag,Metal_counterion_flag,Huge_counterion_flag
-7238842_R.cif,YES,"[['O53'], ['O54'], ['O55', 'O65'], ['O56', 'O66'], ['O57'], ['O58'], ['O59'], ['O60'], ['O61'], ['O62'], ['O63'], ['O64']]",12,[],0,0,14,14,True,.,.

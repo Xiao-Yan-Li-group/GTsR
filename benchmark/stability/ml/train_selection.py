@@ -93,10 +93,10 @@ for n_top in [10, 20, 30, 40, 50]:
     train_prob = best_rf.predict_proba(X_train)[:, 1]
     train_pred = best_rf.predict(X_train)
 
-    pd.DataFrame({"true": y_train, "pred": train_pred, "prob": train_prob}
+    pd.DataFrame({"experiment": y_train, "pred": train_pred, "prob": train_prob}
                  ).to_csv(f"train_predictions_{n_top}.csv", index=False)
 
-    pd.DataFrame({"true": y_test, "pred": y_pred, "prob": y_prob}
+    pd.DataFrame({"experiment": y_test, "pred": y_pred, "prob": y_prob}
                  ).to_csv(f"test_predictions_{n_top}.csv", index=False)
 
     for split, X_sp, y_sp, y_pr, y_pb in [

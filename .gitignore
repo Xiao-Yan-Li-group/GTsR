@@ -239,12 +239,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-benchmark/gcmc/data
+
+
 benchmark/mlp/data
-benchmark/other_tools/
+benchmark/solvent/time
+benchmark/solvent/results
 dataset
 draft
-GTsR_gub_20260422.pptx
 figs
-benchmark/solvent/samosa
-benchmark/solvent/results
