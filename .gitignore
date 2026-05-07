@@ -1,21 +1,3 @@
-# Raw datasets
-clean_dataset_test/
-clean_dataset/
-dataset/
-remove/
-
-
-# GTsR3 generated data
-GTsR3/data/free/
-GTsR3/data/coordinated/
-GTsR3/data/**/*.json
-GTsR3/data/**/*.npy
-
-# GTsR3 generated outputs
-GTsR3/label_check/
-GTsR3/pth/
-GTsR3/**/*.pth
-
 # Logs / temp
 *.log
 tmp/
@@ -240,10 +222,26 @@ __marimo__/
 .streamlit/secrets.toml
 
 
-
+# Guobin
 benchmark/mlp/data
 benchmark/solvent/time
 benchmark/solvent/results
 dataset
 draft
 figs
+.DS_Store
+
+# Kairui
+clean_dataset_test/
+clean_dataset/
+dataset/
+remove/
+
+GTsR3/data/free/
+GTsR3/data/coordinated/
+GTsR3/data/**/*.json
+GTsR3/data/**/*.npy
+
+GTsR3/label_check/
+GTsR3/pth/
+GTsR3/**/*.pth
