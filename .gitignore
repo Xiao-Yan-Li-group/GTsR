@@ -237,11 +237,11 @@ clean_dataset/
 dataset/
 remove/
 
-GTsR3/data/free/
-GTsR3/data/coordinated/
-GTsR3/data/**/*.json
-GTsR3/data/**/*.npy
+src/data/free/
+src/data/coordinated/
+src/data/**/*.json
+src/data/**/*.npy
 
-GTsR3/label_check/
-GTsR3/pth/
-GTsR3/**/*.pth
+src/label_check/
+src/pth/
+src/**/*.pth
