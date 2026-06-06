@@ -18,6 +18,8 @@ from model.GCN_solvent import SolventAtomClassifier
 from model.data_solvent import SolventCIFData, collate_pool, get_data_loader
 from model.utils import AverageMeter, binary_metrics_from_logits, save_checkpoint
 
+_ROC_TOOLS = None
+
 
 def choose_device(device_arg: str) -> torch.device:
     if device_arg == "auto":
@@ -30,6 +32,60 @@ def load_checkpoint(path: Path, device: torch.device) -> dict:
         return torch.load(path, map_location=device, weights_only=False)
     except TypeError:
         return torch.load(path, map_location=device)
+
+
+def get_roc_tools():
+    global _ROC_TOOLS
+    if _ROC_TOOLS is None:
+        try:
+            import matplotlib
+
+            matplotlib.use("Agg")
+            import matplotlib.pyplot as plt
+            from sklearn.metrics import RocCurveDisplay, roc_auc_score
+        except ImportError as exc:
+            raise ImportError(
+                "ROC/AUC output requires matplotlib and scikit-learn. "
+                "Install them with: pip install matplotlib scikit-learn"
+            ) from exc
+        _ROC_TOOLS = plt, RocCurveDisplay, roc_auc_score
+    return _ROC_TOOLS
+
+
+def add_auc(metrics: dict) -> dict:
+    if "y_true" not in metrics or "y_score" not in metrics:
+        return metrics
+    y_true = metrics["y_true"]
+    y_score = metrics["y_score"]
+    if np.unique(y_true >= 0.5).size < 2:
+        metrics["auc"] = float("nan")
+        return metrics
+    _, _, roc_auc_score = get_roc_tools()
+    metrics["auc"] = float(roc_auc_score(y_true, y_score))
+    return metrics
+
+
+def save_roc_curve(path: Path, metrics: dict, title: str) -> None:
+    if "y_true" not in metrics or "y_score" not in metrics:
+        return
+    if np.unique(metrics["y_true"] >= 0.5).size < 2:
+        return
+    plt, RocCurveDisplay, _ = get_roc_tools()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig, ax = plt.subplots(figsize=(6.0, 5.2))
+    RocCurveDisplay.from_predictions(
+        metrics["y_true"],
+        metrics["y_score"],
+        name=f"AUC={metrics['auc']:.4f}",
+        ax=ax,
+        curve_kwargs={"linewidth": 2.0},
+    )
+    ax.plot([0, 1], [0, 1], linestyle="--", color="gray", linewidth=1.0)
+    ax.set_title(title)
+    ax.grid(alpha=0.25)
+    fig.tight_layout()
+    fig.savefig(path, bbox_inches="tight", dpi=300)
+    plt.close(fig)
 
 
 def compute_pos_weight(label_dir: Path, ids: list[str]) -> float:
@@ -56,9 +112,11 @@ def move_model_input(batch_input, device: torch.device):
     )
 
 
-def run_epoch(loader, model, criterion, optimizer, device, threshold: float, train: bool):
+def run_epoch(loader, model, criterion, optimizer, device, threshold: float, train: bool, collect_scores: bool = False):
     losses = AverageMeter()
     totals = {"tp": 0, "tn": 0, "fp": 0, "fn": 0}
+    y_true_parts = []
+    y_score_parts = []
 
     model.train(train)
     for batch_input, target, _ in loader:
@@ -76,13 +134,20 @@ def run_epoch(loader, model, criterion, optimizer, device, threshold: float, tra
         for key in totals:
             totals[key] += metrics[key]
         losses.update(loss.item(), target.numel())
+        if collect_scores:
+            y_true_parts.append(target.detach().cpu().numpy())
+            y_score_parts.append(torch.sigmoid(output.detach()).cpu().numpy())
 
     tp, tn, fp, fn = totals["tp"], totals["tn"], totals["fp"], totals["fn"]
     precision = tp / max(tp + fp, 1)
     recall = tp / max(tp + fn, 1)
     f1 = 2 * precision * recall / max(precision + recall, 1e-12)
     accuracy = (tp + tn) / max(tp + tn + fp + fn, 1)
-    return {"loss": losses.avg, "accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1, **totals}
+    result = {"loss": losses.avg, "accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1, **totals}
+    if collect_scores:
+        result["y_true"] = np.concatenate(y_true_parts)
+        result["y_score"] = np.concatenate(y_score_parts)
+    return result
 
 
 def main() -> None:
@@ -105,6 +170,8 @@ def main() -> None:
     parser.add_argument("--threshold", type=float, default=0.5)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--resume", type=Path, default=None)
+    parser.add_argument("--save-roc", action="store_true", help="Print AUC and save best validation/test ROC curves.")
+    parser.add_argument("--roc-dir", type=Path, default=None, help="ROC output directory. Defaults to model-dir/task/roc.")
     args = parser.parse_args()
 
     task_data_dir = args.data_dir / args.task
@@ -156,6 +223,7 @@ def main() -> None:
     task_dir = args.model_dir / args.task
     checkpoint_path = task_dir / "checkpoint.pth"
     best_path = task_dir / "best.pth"
+    roc_dir = args.roc_dir if args.roc_dir is not None else task_dir / "roc"
 
     print(f"task: {args.task}")
     print(f"train/val/test: {len(train_dataset)}/{len(val_dataset)}/{len(test_dataset)}")
@@ -172,7 +240,18 @@ def main() -> None:
 
     for epoch in range(start_epoch, args.epochs):
         train_metrics = run_epoch(train_loader, model, criterion, optimizer, device, args.threshold, train=True)
-        val_metrics = run_epoch(val_loader, model, criterion, optimizer, device, args.threshold, train=False)
+        val_metrics = run_epoch(
+            val_loader,
+            model,
+            criterion,
+            optimizer,
+            device,
+            args.threshold,
+            train=False,
+            collect_scores=args.save_roc,
+        )
+        if args.save_roc:
+            add_auc(val_metrics)
         scheduler.step()
 
         is_best = val_metrics["f1"] > best_f1
@@ -195,21 +274,39 @@ def main() -> None:
             checkpoint_path,
             best_path,
         )
+        if args.save_roc and is_best:
+            save_roc_curve(roc_dir / "best_val_roc.png", val_metrics, f"{args.task} validation ROC epoch {epoch:03d}")
 
+        auc_text = f" auc {val_metrics['auc']:.4f}" if args.save_roc else ""
         print(
             f"epoch {epoch:03d} train loss {train_metrics['loss']:.4f} f1 {train_metrics['f1']:.4f} "
-            f"val loss {val_metrics['loss']:.4f} f1 {val_metrics['f1']:.4f} "
+            f"val loss {val_metrics['loss']:.4f} f1 {val_metrics['f1']:.4f}{auc_text} "
             f"p/r {val_metrics['precision']:.4f}/{val_metrics['recall']:.4f}"
         )
 
     best_checkpoint = load_checkpoint(best_path, device)
     model.load_state_dict(best_checkpoint["state_dict"])
-    test_metrics = run_epoch(test_loader, model, criterion, optimizer, device, args.threshold, train=False)
+    test_metrics = run_epoch(
+        test_loader,
+        model,
+        criterion,
+        optimizer,
+        device,
+        args.threshold,
+        train=False,
+        collect_scores=args.save_roc,
+    )
+    if args.save_roc:
+        add_auc(test_metrics)
+        save_roc_curve(roc_dir / "test_roc.png", test_metrics, f"{args.task} test ROC")
+    test_auc_text = f" auc {test_metrics['auc']:.4f}" if args.save_roc else ""
     print(
-        f"test loss {test_metrics['loss']:.4f} f1 {test_metrics['f1']:.4f} "
+        f"test loss {test_metrics['loss']:.4f} f1 {test_metrics['f1']:.4f}{test_auc_text} "
         f"accuracy {test_metrics['accuracy']:.4f} p/r {test_metrics['precision']:.4f}/{test_metrics['recall']:.4f}"
     )
     print(f"best model: {best_path}")
+    if args.save_roc:
+        print(f"roc curves: {roc_dir}")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import re
-import shlex
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from itertools import permutations, product
@@ -94,56 +93,9 @@ def clean_symbol(raw: str) -> str:
     return symbol[0].upper() + symbol[1:].lower()
 
 
-def parse_float(value: str) -> float:
-    value = value.strip().strip("'\"")
-    if value in {".", "?"}:
-        raise ValueError("Missing numeric CIF value")
-    match = re.match(r"([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][+-]?\d+)?)", value)
-    if not match:
-        raise ValueError(f"Cannot parse numeric CIF value: {value!r}")
-    return float(match.group(1))
-
-
-def _split_cif_line(line: str) -> list[str]:
-    return shlex.split(line, comments=False, posix=True)
-
-
-def _find_atom_site_loop(lines: list[str]) -> tuple[list[str], int, int] | None:
-    i = 0
-    while i < len(lines):
-        if lines[i].strip().lower() != "loop_":
-            i += 1
-            continue
-
-        j = i + 1
-        headers: list[str] = []
-        while j < len(lines) and lines[j].lstrip().startswith("_"):
-            headers.append(lines[j].strip().split()[0])
-            j += 1
-
-        required = {"_atom_site_fract_x", "_atom_site_fract_y", "_atom_site_fract_z"}
-        if required.issubset(set(headers)) and (
-            "_atom_site_type_symbol" in headers or "_atom_site_label" in headers
-        ):
-            data_start = j
-            data_end = data_start
-            while data_end < len(lines):
-                stripped = lines[data_end].strip()
-                if (
-                    stripped.lower() == "loop_"
-                    or stripped.lower().startswith("data_")
-                    or stripped.startswith("_")
-                ):
-                    break
-                data_end += 1
-            return headers, data_start, data_end
-
-        i = j
-    return None
-
-
 def _structure_from_ase_pymatgen(path: Path):
-    ase_error: Exception | None = None
+    errors: list[str] = []
+
     try:
         from ase.io import read  # type: ignore
         from pymatgen.io.ase import AseAtomsAdaptor  # type: ignore
@@ -151,29 +103,16 @@ def _structure_from_ase_pymatgen(path: Path):
         atoms = read(str(path))
         return AseAtomsAdaptor.get_structure(atoms)
     except Exception as exc:
-        ase_error = exc
+        errors.append(f"ASE read + pymatgen conversion failed: {type(exc).__name__}: {exc}")
 
     try:
         from pymatgen.core import Structure  # type: ignore
 
         return Structure.from_file(str(path))
-    except Exception:
-        pass
-
-    try:
-        from pymatgen.io.cif import CifParser  # type: ignore
-
-        parser = CifParser(str(path), occupancy_tolerance=10)
-        if hasattr(parser, "parse_structures"):
-            structures = parser.parse_structures(primitive=False)
-        else:
-            structures = parser.get_structures(primitive=False)
-        if structures:
-            return structures[0]
     except Exception as exc:
-        raise ValueError(f"ASE/pymatgen could not read {path}: {ase_error}; {exc}") from exc
+        errors.append(f"Structure.from_file failed: {type(exc).__name__}: {exc}")
 
-    raise ValueError(f"ASE/pymatgen could not read {path}: {ase_error}")
+    raise ValueError(f"Could not read {path}. Attempts: {' | '.join(errors)}")
 
 
 def _cell_from_pymatgen_structure(structure) -> dict[str, float]:
@@ -200,6 +139,18 @@ def _site_symbol(site) -> str:
 def read_cif_structure(cif_path: str | Path) -> CifStructure:
     path = Path(cif_path)
     structure = _structure_from_ase_pymatgen(path)
+    atoms = pymatgen_structure_to_cif_atoms(structure)
+    if not atoms:
+        raise ValueError(f"No atoms parsed from {path}")
+    return CifStructure(
+        path=path,
+        cell=_cell_from_pymatgen_structure(structure),
+        atoms=atoms,
+        pmg_structure=structure,
+    )
+
+
+def pymatgen_structure_to_cif_atoms(structure) -> list[CifAtom]:
     atoms: list[CifAtom] = []
     for atom_index, site in enumerate(structure.sites):
         symbol = _site_symbol(site)
@@ -210,15 +161,72 @@ def read_cif_structure(cif_path: str | Path) -> CifStructure:
             float(site.frac_coords[2]) % 1.0,
         )
         atoms.append(CifAtom(symbol=symbol, label=str(label), frac=frac))
+    return atoms
 
-    if not atoms:
-        raise ValueError(f"No atoms parsed from {path}")
-    return CifStructure(
-        path=path,
-        cell=_cell_from_pymatgen_structure(structure),
-        atoms=atoms,
-        pmg_structure=structure,
+
+def read_pymatgen_structure(cif_path: str | Path):
+    return _structure_from_ase_pymatgen(Path(cif_path))
+
+
+def _site_property_key(name: str) -> str:
+    return name[len("_atom_site_"):] if name.startswith("_atom_site_") else name
+
+
+def _copy_with_site_properties(structure, label_columns: list[tuple[str, Iterable[float | int]]]):
+    copied = structure.copy()
+    atom_count = len(copied)
+    for name, values in label_columns:
+        values = list(values)
+        if len(values) != atom_count:
+            raise ValueError(f"Column {name} has {len(values)} values, but structure has {atom_count} atoms")
+        copied.add_site_property(_site_property_key(name), values)
+    return copied
+
+
+def subset_pymatgen_structure(structure, keep_mask: Iterable[bool]):
+    mask = np.array(list(keep_mask), dtype=bool)
+    if len(mask) != len(structure):
+        raise ValueError(f"keep_mask has {len(mask)} values, but structure has {len(structure)} atoms")
+    if not mask.any():
+        return None
+    from pymatgen.core import Structure  # type: ignore
+
+    return Structure.from_sites([structure[int(i)] for i in np.where(mask)[0]])
+
+
+def write_pymatgen_cif(structure, output_cif: str | Path, write_site_properties: bool = False) -> None:
+    if len(structure) == 0:
+        raise ValueError("pymatgen CifWriter cannot write an empty structure")
+    from pymatgen.io.cif import CifWriter  # type: ignore
+
+    out_path = Path(output_cif)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    writer = CifWriter(
+        structure,
+        refine_struct=False,
+        significant_figures=8,
+        write_site_properties=write_site_properties,
     )
+    out_path.write_text(str(writer), encoding="utf-8")
+
+
+def write_structure_subset_cif(
+    template_cif: str | Path,
+    output_cif: str | Path,
+    keep_mask: Iterable[bool],
+    label_columns: list[tuple[str, Iterable[float | int]]] | None = None,
+) -> int:
+    structure = read_pymatgen_structure(template_cif)
+    if label_columns:
+        structure = _copy_with_site_properties(structure, label_columns)
+    subset = subset_pymatgen_structure(structure, keep_mask)
+    if subset is None:
+        out_path = Path(output_cif)
+        if out_path.exists():
+            out_path.unlink()
+        return 0
+    write_pymatgen_cif(subset, output_cif, write_site_properties=bool(label_columns))
+    return len(subset)
 
 
 def cell_to_lattice(cell: dict[str, float]) -> np.ndarray:
@@ -524,9 +532,17 @@ def label_removed_atoms(
 ) -> LabelResult:
     reference = read_cif_structure(reference_cif)
     target = read_cif_structure(target_cif)
-    alignment = infer_coordinate_alignment(reference.atoms, target.atoms, digits=match_digits)
+    return label_removed_atom_lists(reference.atoms, target.atoms, match_digits=match_digits)
+
+
+def label_removed_atom_lists(
+    reference_atoms: list[CifAtom],
+    target_atoms: list[CifAtom],
+    match_digits: int = 4,
+) -> LabelResult:
+    alignment = infer_coordinate_alignment(reference_atoms, target_atoms, digits=match_digits)
     transformed_target_atoms = _transform_atoms(
-        target.atoms,
+        target_atoms,
         alignment.axis_order,
         alignment.axis_signs,
     )
@@ -534,7 +550,7 @@ def label_removed_atoms(
 
     labels: list[int] = []
     kept_count = 0
-    for atom in reference.atoms:
+    for atom in reference_atoms:
         key = (atom.symbol, _coord_key(atom.frac, match_digits))
         if target_counter[key] > 0:
             labels.append(0)
@@ -549,19 +565,8 @@ def label_removed_atoms(
         axis_order=alignment.axis_order,
         axis_signs=alignment.axis_signs,
         kept_count=kept_count,
-        target_count=len(target.atoms),
+        target_count=len(target_atoms),
     )
-
-
-def _format_cif_value(value: float | int) -> str:
-    if isinstance(value, (float, np.floating)):
-        return f"{float(value):.6f}"
-    return str(int(value))
-
-
-def _data_block_name(path: Path) -> str:
-    name = re.sub(r"[^A-Za-z0-9_]+", "_", path.stem)
-    return name or "structure"
 
 
 def write_labeled_cif(
@@ -569,43 +574,6 @@ def write_labeled_cif(
     output_cif: str | Path,
     label_columns: list[tuple[str, Iterable[float | int]]],
 ) -> None:
-    template = Path(template_cif)
-    structure = read_cif_structure(template)
-    columns = [(name, list(values)) for name, values in label_columns]
-    atom_count = len(structure.atoms)
-    for name, values in columns:
-        if len(values) != atom_count:
-            raise ValueError(
-                f"Column {name} has {len(values)} values, but {template} has {atom_count} atoms"
-            )
-
-    output_lines: list[str] = []
-    output_lines.append(f"data_{_data_block_name(template)}")
-    output_lines.append(f"_cell_length_a    {structure.cell['_cell_length_a']:.8f}")
-    output_lines.append(f"_cell_length_b    {structure.cell['_cell_length_b']:.8f}")
-    output_lines.append(f"_cell_length_c    {structure.cell['_cell_length_c']:.8f}")
-    output_lines.append(f"_cell_angle_alpha {structure.cell['_cell_angle_alpha']:.8f}")
-    output_lines.append(f"_cell_angle_beta  {structure.cell['_cell_angle_beta']:.8f}")
-    output_lines.append(f"_cell_angle_gamma {structure.cell['_cell_angle_gamma']:.8f}")
-    output_lines.append("_symmetry_space_group_name_H-M 'P 1'")
-    output_lines.append("_symmetry_Int_Tables_number 1")
-    output_lines.append("loop_")
-    output_lines.append(" _atom_site_label")
-    output_lines.append(" _atom_site_type_symbol")
-    output_lines.append(" _atom_site_fract_x")
-    output_lines.append(" _atom_site_fract_y")
-    output_lines.append(" _atom_site_fract_z")
-    for name, _ in columns:
-        output_lines.append(f" {name}")
-
-    for atom_index, atom in enumerate(structure.atoms):
-        appended = [_format_cif_value(values[atom_index]) for _, values in columns]
-        output_lines.append(
-            f" {atom.label} {atom.symbol} "
-            f"{atom.frac[0]:.8f} {atom.frac[1]:.8f} {atom.frac[2]:.8f} "
-            f"{' '.join(appended)}"
-        )
-
-    out_path = Path(output_cif)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text("\n".join(output_lines) + "\n", encoding="utf-8")
+    structure = read_pymatgen_structure(template_cif)
+    labeled = _copy_with_site_properties(structure, label_columns)
+    write_pymatgen_cif(labeled, output_cif, write_site_properties=True)

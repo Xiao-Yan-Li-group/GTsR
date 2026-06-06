@@ -12,7 +12,7 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from model.cif_utils import read_cif_structure
+from model.cif_utils import read_cif_structure, write_structure_subset_cif
 
 
 def resolve_cif_dir(dataset_dir: Path) -> Path:
@@ -45,10 +45,6 @@ def read_ids(label_dir: Path, requested_ids: list[str] | None, limit: int | None
     return ids
 
 
-def data_block_name(path: Path) -> str:
-    return "".join(char if char.isalnum() or char == "_" else "_" for char in path.stem) or "structure"
-
-
 def write_split_cif(
     template_cif: Path,
     output_cif: Path,
@@ -64,38 +60,13 @@ def write_split_cif(
         )
 
     target_value = 1 if keep_solvent else 0
-    output_lines = [
-        f"data_{data_block_name(template_cif)}",
-        f"_cell_length_a    {structure.cell['_cell_length_a']:.8f}",
-        f"_cell_length_b    {structure.cell['_cell_length_b']:.8f}",
-        f"_cell_length_c    {structure.cell['_cell_length_c']:.8f}",
-        f"_cell_angle_alpha {structure.cell['_cell_angle_alpha']:.8f}",
-        f"_cell_angle_beta  {structure.cell['_cell_angle_beta']:.8f}",
-        f"_cell_angle_gamma {structure.cell['_cell_angle_gamma']:.8f}",
-        "_symmetry_space_group_name_H-M 'P 1'",
-        "_symmetry_Int_Tables_number 1",
-        "loop_",
-        " _atom_site_label",
-        " _atom_site_type_symbol",
-        " _atom_site_fract_x",
-        " _atom_site_fract_y",
-        " _atom_site_fract_z",
-        f" {label_column}",
-    ]
-
-    kept_atoms = 0
-    for atom_index, atom in enumerate(structure.atoms):
-        label = int(labels[atom_index] >= 0.5)
-        if label == target_value:
-            output_lines.append(
-                f" {atom.label} {atom.symbol} "
-                f"{atom.frac[0]:.8f} {atom.frac[1]:.8f} {atom.frac[2]:.8f} {label}"
-            )
-            kept_atoms += 1
-
-    output_cif.parent.mkdir(parents=True, exist_ok=True)
-    output_cif.write_text("\n".join(output_lines) + "\n", encoding="utf-8")
-    return kept_atoms
+    keep_mask = np.array([int(value >= 0.5) == target_value for value in labels], dtype=bool)
+    return write_structure_subset_cif(
+        template_cif,
+        output_cif,
+        keep_mask,
+        [(label_column, labels.astype(int))],
+    )
 
 
 def split_one(

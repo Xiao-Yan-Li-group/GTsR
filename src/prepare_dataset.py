@@ -4,6 +4,7 @@ import argparse
 import csv
 import json
 import random
+import shutil
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
@@ -83,10 +84,11 @@ def zero_alignment(atom_count: int) -> dict:
         "axis_signs": [1, 1, 1],
         "transform": "x,y,z",
         "complete": True,
+        "match_digits_used": "",
     }
 
 
-def alignment_summary(label_result) -> dict:
+def alignment_summary(label_result, match_digits: int) -> dict:
     alignment_ratio = 1.0
     if label_result.target_count > 0:
         alignment_ratio = label_result.kept_count / label_result.target_count
@@ -101,6 +103,7 @@ def alignment_summary(label_result) -> dict:
         "axis_signs": [int(value) for value in label_result.axis_signs],
         "transform": format_transform(label_result.axis_order, label_result.axis_signs),
         "complete": bool(label_result.kept_count == label_result.target_count),
+        "match_digits_used": int(match_digits),
     }
 
 
@@ -157,15 +160,40 @@ def task_files(cif_dir: Path, row: dict, task: str) -> tuple[Path, str, Path | N
 def make_labels(
     source_file: Path,
     target_file: Path | None,
-    match_digits: int,
+    match_digits_options: list[int],
 ) -> tuple[np.ndarray, dict]:
+    if isinstance(match_digits_options, int):
+        match_digits_options = [match_digits_options]
     structure = read_cif_structure(source_file)
     if target_file is None:
         labels = np.zeros((len(structure.atoms),), dtype=np.float32)
         return labels, zero_alignment(len(structure.atoms))
 
-    result = label_removed_atoms(source_file, target_file, match_digits=match_digits)
-    return result.labels, alignment_summary(result)
+    attempts: list[tuple[np.ndarray, dict]] = []
+    for match_digits in match_digits_options:
+        result = label_removed_atoms(source_file, target_file, match_digits=match_digits)
+        summary = alignment_summary(result, match_digits)
+        attempts.append((result.labels, summary))
+        if summary["complete"]:
+            return result.labels, summary
+
+    best_labels, best_summary = max(
+        attempts,
+        key=lambda item: (int(item[1]["kept_atoms"]), float(item[1]["alignment_ratio"])),
+    )
+    best_summary = dict(best_summary)
+    best_summary["attempts"] = [
+        {
+            "match_digits": int(summary["match_digits_used"]),
+            "kept_atoms": int(summary["kept_atoms"]),
+            "target_atoms": int(summary["target_atoms"]),
+            "alignment_ratio": float(summary["alignment_ratio"]),
+            "transform": summary["transform"],
+            "shift": summary["shift"],
+        }
+        for _, summary in attempts
+    ]
+    return best_labels, best_summary
 
 
 def process_one(
@@ -175,7 +203,7 @@ def process_one(
     output_dir: Path,
     radius: float,
     max_neighbors: int,
-    match_digits: int,
+    match_digits: list[int],
     write_marked_cif: bool,
     allow_partial_alignment: bool,
     min_alignment_ratio: float,
@@ -186,11 +214,15 @@ def process_one(
     labels, alignment = make_labels(source_file, target_file, match_digits)
     if labels.shape[0] != len(structure.atoms):
         raise ValueError(f"Label length mismatch for {refcode}/{task}")
-    if (
-        alignment["compared"]
-        and not allow_partial_alignment
-        and float(alignment["alignment_ratio"]) < min_alignment_ratio
-    ):
+    if alignment["compared"] and not alignment["complete"] and not allow_partial_alignment:
+        attempts = alignment.get("attempts", [])
+        raise ValueError(
+            f"{task} target alignment incomplete after match_digits={match_digits}: "
+            f"best kept {alignment['kept_atoms']}/{alignment['target_atoms']} "
+            f"({float(alignment['alignment_ratio']):.3f}), "
+            f"best_digits={alignment['match_digits_used']}, attempts={attempts}"
+        )
+    if alignment["compared"] and allow_partial_alignment and float(alignment["alignment_ratio"]) < min_alignment_ratio:
         raise ValueError(
             f"{task} target alignment below threshold: kept {alignment['kept_atoms']}/"
             f"{alignment['target_atoms']} ({float(alignment['alignment_ratio']):.3f}), "
@@ -242,6 +274,7 @@ def process_one(
         "target_atoms": int(alignment["target_atoms"]),
         "alignment_ratio": f"{float(alignment['alignment_ratio']):.6f}",
         "alignment_complete": int(alignment["complete"]),
+        "match_digits_used": alignment["match_digits_used"],
         "shift": ";".join(f"{float(value):.4f}" for value in alignment["shift"]),
         "transform": alignment["transform"],
         "r2f": flag(row, "r2f"),
@@ -267,7 +300,20 @@ def process_job(job: dict) -> tuple[bool, dict]:
         )
         return True, record
     except Exception as exc:
-        return False, {"refcode": row.get("refcode", ""), "task": task, "error": str(exc)}
+        payload = {"refcode": row.get("refcode", ""), "task": task, "error": str(exc)}
+        try:
+            source_file, source_role, target_file, target_role = task_files(job["cif_dir"], row, task)
+            payload.update(
+                {
+                    "source_role": source_role,
+                    "source_file": str(source_file),
+                    "target_role": target_role or "",
+                    "target_file": str(target_file) if target_file is not None else "",
+                }
+            )
+        except Exception:
+            payload.update({"source_role": "", "source_file": "", "target_role": "", "target_file": ""})
+        return False, payload
 
 
 def build_jobs(rows: list[dict], args, cif_dir: Path) -> list[dict]:
@@ -296,7 +342,7 @@ def collect_jobs(jobs: list[dict], num_workers: int) -> tuple[list[dict], list[d
     errors: list[dict] = []
 
     if num_workers <= 1:
-        for job in tqdm(jobs, desc="Preparing GTsR3 data"):
+        for job in tqdm(jobs, total=len(jobs), desc="Preparing GTsR3 data", unit="job", dynamic_ncols=True):
             success, payload = process_job(job)
             if success:
                 all_records.append(payload)
@@ -306,7 +352,13 @@ def collect_jobs(jobs: list[dict], num_workers: int) -> tuple[list[dict], list[d
         with ProcessPoolExecutor(max_workers=num_workers) as executor:
             future_to_job = {executor.submit(process_job, job): job for job in jobs}
             futures = as_completed(future_to_job)
-            for future in tqdm(futures, total=len(future_to_job), desc=f"Preparing GTsR3 data ({num_workers} workers)"):
+            for future in tqdm(
+                futures,
+                total=len(future_to_job),
+                desc=f"Preparing GTsR3 data ({num_workers} workers)",
+                unit="job",
+                dynamic_ncols=True,
+            ):
                 job = future_to_job[future]
                 try:
                     success, payload = future.result()
@@ -339,6 +391,7 @@ def write_summary(path: Path, records: list[dict]) -> None:
         "target_atoms",
         "alignment_ratio",
         "alignment_complete",
+        "match_digits_used",
         "shift",
         "transform",
         "r2f",
@@ -350,6 +403,32 @@ def write_summary(path: Path, records: list[dict]) -> None:
         writer.writerows(records)
 
 
+def write_error_report(output_dir: Path, errors: list[dict]) -> Path:
+    error_dir = output_dir / "error"
+    error_dir.mkdir(parents=True, exist_ok=True)
+    error_csv = error_dir / "alignment_errors.csv"
+    fieldnames = ["refcode", "task", "source_role", "source_file", "target_role", "target_file", "error"]
+    with error_csv.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for error in errors:
+            writer.writerow({name: error.get(name, "") for name in fieldnames})
+
+    for error in errors:
+        refcode = error.get("refcode") or "unknown"
+        task = error.get("task") or "unknown"
+        case_dir = error_dir / refcode / task
+        case_dir.mkdir(parents=True, exist_ok=True)
+        source_file = Path(error["source_file"]) if error.get("source_file") else None
+        target_file = Path(error["target_file"]) if error.get("target_file") else None
+        if source_file is not None and source_file.exists():
+            shutil.copy2(source_file, case_dir / "source.cif")
+        if target_file is not None and target_file.exists():
+            shutil.copy2(target_file, case_dir / "target.cif")
+        (case_dir / "reason.txt").write_text(str(error.get("error", "")) + "\n", encoding="utf-8")
+    return error_csv
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare GTsR3 datasets from clean_dataset_test.")
     parser.add_argument("--dataset-dir", type=Path, default=PROJECT_ROOT / "clean_dataset_test")
@@ -357,7 +436,13 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=SCRIPT_DIR / "data")
     parser.add_argument("--radius", type=float, default=8.0)
     parser.add_argument("--max-neighbors", type=int, default=12)
-    parser.add_argument("--match-digits", type=int, default=4)
+    parser.add_argument(
+        "--match-digits",
+        type=int,
+        nargs="+",
+        default=[3, 2],
+        help="Coordinate matching precision attempts. Default tries 3 digits, then 2 digits.",
+    )
     parser.add_argument("--val-ratio", type=float, default=0.1)
     parser.add_argument("--test-ratio", type=float, default=0.1)
     parser.add_argument("--seed", type=int, default=1126)
@@ -387,22 +472,36 @@ def main() -> None:
 
     write_summary(args.output_dir / "label_summary.csv", all_records)
     errors_path = args.output_dir / "prepare_errors.csv"
+    error_report_path = None
     if errors:
+        error_report_path = write_error_report(args.output_dir, errors)
         with errors_path.open("w", newline="", encoding="utf-8") as handle:
-            writer = csv.DictWriter(handle, fieldnames=["refcode", "task", "error"])
+            writer = csv.DictWriter(handle, fieldnames=["refcode", "task", "source_file", "target_file", "error"])
             writer.writeheader()
-            writer.writerows(errors)
+            writer.writerows({name: error.get(name, "") for name in writer.fieldnames} for error in errors)
     elif errors_path.exists():
         errors_path.unlink()
 
+    split_outputs = []
     for task, records in records_by_task.items():
         splits = split_ids(records, args.val_ratio, args.test_ratio, args.seed)
         for split_name, split_ids_ in splits.items():
-            write_id_csv(args.output_dir / "splits" / f"{task}_{split_name}.csv", split_ids_)
+            split_outputs.append((task, split_name, split_ids_))
+
+    for task, split_name, split_ids_ in tqdm(
+        split_outputs,
+        total=len(split_outputs),
+        desc="Writing split CSVs",
+        unit="split",
+        dynamic_ncols=True,
+    ):
+        write_id_csv(args.output_dir / "splits" / f"{task}_{split_name}.csv", split_ids_)
 
     print(f"prepared samples: {len(all_records)}")
     print(f"errors: {len(errors)}")
     print(f"summary: {args.output_dir / 'label_summary.csv'}")
+    if error_report_path is not None:
+        print(f"alignment errors: {error_report_path}")
     print(f"splits: {args.output_dir / 'splits'}")
 
 
