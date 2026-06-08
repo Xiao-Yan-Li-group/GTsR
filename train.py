@@ -16,77 +16,9 @@ if str(SCRIPT_DIR) not in sys.path:
 
 from src.GCN import SolventAtomClassifier
 from src.data import SolventCIFData, collate_pool, get_data_loader
-from src.utils import AverageMeter, metric_functions, save_checkpoint
+from src.utils import AverageMeter, metric_functions, save_checkpoint, load_checkpoint
 
 _ROC_TOOLS = None
-
-
-def choose_device(device_arg: str) -> torch.device:
-    if device_arg == "auto":
-        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    return torch.device(device_arg)
-
-
-def load_checkpoint(path: Path, device: torch.device) -> dict:
-    try:
-        return torch.load(path, map_location=device, weights_only=False)
-    except TypeError:
-        return torch.load(path, map_location=device)
-
-
-def get_roc_tools():
-    global _ROC_TOOLS
-    if _ROC_TOOLS is None:
-        try:
-            import matplotlib
-
-            matplotlib.use("Agg")
-            import matplotlib.pyplot as plt
-            from sklearn.metrics import RocCurveDisplay, roc_auc_score
-        except ImportError as exc:
-            raise ImportError(
-                "ROC/AUC output requires matplotlib and scikit-learn. "
-                "Install them with: pip install matplotlib scikit-learn"
-            ) from exc
-        _ROC_TOOLS = plt, RocCurveDisplay, roc_auc_score
-    return _ROC_TOOLS
-
-
-def add_auc(metrics: dict) -> dict:
-    if "y_true" not in metrics or "y_score" not in metrics:
-        return metrics
-    y_true = metrics["y_true"]
-    y_score = metrics["y_score"]
-    if np.unique(y_true >= 0.5).size < 2:
-        metrics["auc"] = float("nan")
-        return metrics
-    _, _, roc_auc_score = get_roc_tools()
-    metrics["auc"] = float(roc_auc_score(y_true, y_score))
-    return metrics
-
-
-def save_roc_curve(path: Path, metrics: dict, title: str) -> None:
-    if "y_true" not in metrics or "y_score" not in metrics:
-        return
-    if np.unique(metrics["y_true"] >= 0.5).size < 2:
-        return
-    plt, RocCurveDisplay, _ = get_roc_tools()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig, ax = plt.subplots(figsize=(6.0, 5.2))
-    RocCurveDisplay.from_predictions(
-        metrics["y_true"],
-        metrics["y_score"],
-        name=f"AUC={metrics['auc']:.4f}",
-        ax=ax,
-        curve_kwargs={"linewidth": 2.0},
-    )
-    ax.plot([0, 1], [0, 1], linestyle="--", color="gray", linewidth=1.0)
-    ax.set_title(title)
-    ax.grid(alpha=0.25)
-    fig.tight_layout()
-    fig.savefig(path, bbox_inches="tight", dpi=300)
-    plt.close(fig)
-
 
 def compute_pos_weight(label_dir: Path, ids: list[str]) -> float:
     positive = 0.0
@@ -152,7 +84,7 @@ def run_epoch(loader, model, criterion, optimizer, device, threshold: float, tra
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train a GTsR3 atom-level solvent classifier.")
-    parser.add_argument("--task", choices=("free", "coordinated"), required=True)
+    parser.add_argument("--task", choices=("free", "all"), required=True)
     parser.add_argument("--data-dir", type=Path, default=SCRIPT_DIR / "data")
     parser.add_argument("--model-dir", type=Path, default=SCRIPT_DIR / "pth")
     parser.add_argument("--radius", type=float, default=8.0)
@@ -168,10 +100,7 @@ def main() -> None:
     parser.add_argument("--lr-decay-rate", type=float, default=0.99)
     parser.add_argument("--weight-decay", type=float, default=0.0)
     parser.add_argument("--threshold", type=float, default=0.5)
-    parser.add_argument("--device", default="auto")
     parser.add_argument("--resume", type=Path, default=None)
-    parser.add_argument("--save-roc", action="store_true", help="Print AUC and save best validation/test ROC curves.")
-    parser.add_argument("--roc-dir", type=Path, default=None, help="ROC output directory. Defaults to model-dir/task/roc.")
     args = parser.parse_args()
 
     task_data_dir = args.data_dir / args.task
@@ -197,7 +126,7 @@ def main() -> None:
     orig_atom_fea_len = sample_input[0].shape[-1] + sample_input[6].shape[-1]
     nbr_fea_len = sample_input[1].shape[-1]
 
-    device = choose_device(args.device)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = SolventAtomClassifier(
         orig_atom_fea_len=orig_atom_fea_len,
         nbr_fea_len=nbr_fea_len,
@@ -250,8 +179,6 @@ def main() -> None:
             train=False,
             collect_scores=args.save_roc,
         )
-        if args.save_roc:
-            add_auc(val_metrics)
         scheduler.step()
 
         is_best = val_metrics["f1"] > best_f1
@@ -274,8 +201,6 @@ def main() -> None:
             checkpoint_path,
             best_path,
         )
-        if args.save_roc and is_best:
-            save_roc_curve(roc_dir / "best_val_roc.png", val_metrics, f"{args.task} validation ROC epoch {epoch:03d}")
 
         auc_text = f" auc {val_metrics['auc']:.4f}" if args.save_roc else ""
         print(
@@ -296,9 +221,7 @@ def main() -> None:
         train=False,
         collect_scores=args.save_roc,
     )
-    if args.save_roc:
-        add_auc(test_metrics)
-        save_roc_curve(roc_dir / "test_roc.png", test_metrics, f"{args.task} test ROC")
+    
     test_auc_text = f" auc {test_metrics['auc']:.4f}" if args.save_roc else ""
     print(
         f"test loss {test_metrics['loss']:.4f} f1 {test_metrics['f1']:.4f}{test_auc_text} "

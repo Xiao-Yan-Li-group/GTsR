@@ -9,7 +9,6 @@ from ase.data import atomic_numbers
 import numpy as np
 from pymatgen.io.cif import CifWriter
 
-
 def cif2graph(
                 cif_path: str | Path,
                 radius: float = 8.0,
@@ -50,10 +49,9 @@ def cif2graph(
             "dij": dij.tolist()
             }
         
-
 def cif2pos(cif_path: str | Path) -> np.ndarray:
-    structure = read(cif_path)
-    return structure.get_positions()
+    struct = Structure.from_file(cif_path)
+    return struct.frac_coords
 
 
 def make_label(cif_path1: str | Path, cif_path2: str | Path, tol=1e-3) -> np.ndarray:
@@ -67,7 +65,6 @@ def make_label(cif_path1: str | Path, cif_path2: str | Path, tol=1e-3) -> np.nda
         
     return labels
     
-
 def label2cif(cif_path1: str | Path, label: np.ndarray, output_dir: str) -> Structure:
     struct = Structure.from_file(cif_path1)
     
@@ -81,14 +78,10 @@ def label2cif(cif_path1: str | Path, label: np.ndarray, output_dir: str) -> Stru
     
     os.makedirs(output_dir, exist_ok=True)
 
-    if sum(label) == 0:
-        framework_atoms = extract(framework)
-        output_path = os.path.join(output_dir, Path(cif_path1).stem+"_framework.cif")
-        CifWriter(framework_atoms).write_file(output_path)
-    else:
-        solvent_atoms = extract(solvent)
-        framework_atoms = extract(framework)
-        solvent_path = os.path.join(output_dir, Path(cif_path1).stem+"_solvent.cif")
-        framework_path = os.path.join(output_dir, Path(cif_path1).stem+"_framework.cif")
-        CifWriter(solvent_atoms).write_file(solvent_path)
-        CifWriter(framework_atoms).write_file(framework_path)
+    framework_atoms = extract(framework)
+    stem = Path(cif_path1).stem
+    CifWriter(framework_atoms).write_file(os.path.join(output_dir, stem + "_framework.cif"))
+    if solvent.any():
+        CifWriter(extract(solvent)).write_file(os.path.join(output_dir, stem + "_solvent.cif"))
+        return extract(solvent)
+    return None

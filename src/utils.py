@@ -48,3 +48,11 @@ def metric_functions(logits: torch.Tensor, target: torch.Tensor, threshold: floa
         "fp": int(fp),
         "fn": int(fn),
     }
+
+
+def load_checkpoint(path: Path, device: torch.device) -> dict:
+    try:
+        return torch.load(path, map_location=device, weights_only=False)
+    except TypeError:
+        return torch.load(path, map_location=device)
+    

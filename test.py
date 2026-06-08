@@ -1,17 +1,12 @@
-from src.cif_utils import make_label, label2cif
+from src.cif_utils import make_label, label2cif, cif2pos1, cif2pos2
 import numpy as np
 from glob import glob
 
+# result =label2cif("./debug/HALHEL_R_pacman.cif", make_label("./debug/HALHEL_R_pacman.cif", "./debug/HALHEL_A_pacman.cif"), "./debug")
 
-# free_labels = glob("./benchmark/dataset/label/free/*.npy")
-# for label_path in free_labels:
-#     label = np.load(label_path)
-#     label2cif("./benchmark/dataset/clean_dataset/" + label_path.split("/")[-1].replace(".npy", ".cif"), label, "./benchmark/dataset/check/free/")
+# print(result)
 
-all_labels = glob("./benchmark/dataset/label/all/*.npy")
-for label_path in all_labels:
-    try:
-        label = np.load(label_path)
-        label2cif("./benchmark/dataset/clean_dataset/" + label_path.split("/")[-1].replace(".npy", ".cif"), label, "./benchmark/dataset/check/all/")
-    except:
-        print(f"Failed to process {label_path}")
+pos1 = cif2pos1("./debug/HALHEL_R_pacman.cif")
+pos2 = cif2pos2("./debug/HALHEL_R_pacman.cif")
+
+print(pos1, pos2)
