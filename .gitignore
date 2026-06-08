@@ -228,7 +228,6 @@ benchmark/draft
 benchmark/stability/dataset
 benchmark/solvent/time
 benchmark/solvent/results
-.DS_Store
 
 # Kairui
 clean_dataset_test/
