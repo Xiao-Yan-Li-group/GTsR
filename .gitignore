@@ -225,7 +225,7 @@ __marimo__/
 # Guobin
 benchmark/mlp/data
 benchmark/draft
-benchmark/stability/dataset
+benchmark/dataset
 benchmark/solvent/time
 benchmark/solvent/results
 
