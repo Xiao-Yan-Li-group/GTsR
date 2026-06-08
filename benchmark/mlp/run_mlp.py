@@ -289,7 +289,7 @@ def main():
     out_dir = sys.argv[2]
 
     cif_files = sorted(glob(os.path.join(cif_dir, "*.cif")))
-    login(token="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")
+    login(token="")
     print("Loading uma-s-1.1 ...")
     predictor = pretrained_mlip.get_predict_unit("uma-s-1p1", device="cuda")
     calc = FAIRChemCalculator(predictor, task_name="odac")

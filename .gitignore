@@ -224,11 +224,10 @@ __marimo__/
 
 # Guobin
 benchmark/mlp/data
+benchmark/draft
+benchmark/stability/dataset
 benchmark/solvent/time
 benchmark/solvent/results
-dataset
-draft
-figs
 .DS_Store
 
 # Kairui
