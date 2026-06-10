@@ -1,3 +1,0 @@
-Total time : 36.1s
-Processed  : 100
-Failed     : 0

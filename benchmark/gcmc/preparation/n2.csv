@@ -1,4 +1,0 @@
-﻿CriticalTemperature,CriticalPressure,AcentricFactor,Type,index,pseudoAtoms,x,y,z,BondsIndex1,BondsIndex2
-126.5,3395800,0.0372,rigid,0,N_n2,0,0,0.55,0,1
-,,,,1,N_com,0,0,0,1,2
-,,,,2,N_n2,0,0,-0.55,,

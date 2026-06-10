@@ -223,11 +223,11 @@ __marimo__/
 
 
 # Guobin
-benchmark/mlp/data
-benchmark/draft
-benchmark/dataset
-benchmark/solvent/time
-benchmark/solvent/results
+evaluation/mlp/data
+evaluation/draft
+evaluation/dataset
+evaluation/solvent/time
+evaluation/solvent/results
 
 # Kairui
 clean_dataset_test/

@@ -1,0 +1,1204 @@
+{
+    "initialization": {
+        "components": {
+            "OCEGOV_R_pacman": {
+                "bondTypes": [],
+                "id": 0,
+                "mass": 46571.45600000009,
+                "n_bonds": 0,
+                "name": "OCEGOV_R_pacman"
+            },
+            "h2o": {
+                "acentricFactor": 0.344,
+                "bondTypes": [],
+                "cbmcStartingBead": 0,
+                "criticalPressure": 22064000.0,
+                "criticalTemperature": 647.14,
+                "diagonalizedInertiaVector": [
+                    1.770458999620317,
+                    1.1547755746620845,
+                    0.6156834249582324
+                ],
+                "id": 0,
+                "mass": 18.015,
+                "molFraction": 1.0,
+                "moveProbabilities": {
+                    "Gibbs swap (CBMC)": 0.0,
+                    "Gibbs swap (CFCMC)": 0.0,
+                    "Gibbs volume": 0.0,
+                    "Hybrid MC": 0.0,
+                    "Identity change (CBMC)": 0.0,
+                    "Parallel tempering": 0.0,
+                    "Random rotation": 0.0,
+                    "Random translation": 0.0,
+                    "Reinsertion (CBMC)": 0.0,
+                    "Rotation": 0.0,
+                    "Swap": 0.0,
+                    "Swap (CB/CFCMC)": 0.0,
+                    "Swap (CBMC)": 0.0,
+                    "Swap (CFCMC)": 0.0,
+                    "Translation": 0.0,
+                    "Volume change": 0.0,
+                    "Widom": 1.0,
+                    "Widom (CB/CFCMC)": 0.0,
+                    "Widom (CFCMC)": 0.0
+                },
+                "n_atoms": 4,
+                "n_bonds": 0,
+                "name": "h2o",
+                "netCharge": 0.0,
+                "rotationalDOF": 3,
+                "shape": "nonlinear",
+                "swappable": false,
+                "translationalDOF": 3
+            }
+        },
+        "forceField": {
+            "Ewald": {
+                "alpha": 0.224903159597558,
+                "kVectors": [
+                    7,
+                    7,
+                    7
+                ],
+                "precision": 1e-06
+            },
+            "interactions": [
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "Si",
+                    "ε/kʙ [K]": 156.0,
+                    "σ/kʙ [Å]": 3.8
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "Ni",
+                    "ε/kʙ [K]": 34.31909089705029,
+                    "σ/kʙ [Å]": 3.16
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "H",
+                    "ε/kʙ [K]": 34.54562200916347,
+                    "σ/kʙ [Å]": 3.325
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "C",
+                    "ε/kʙ [K]": 86.40694416538523,
+                    "σ/kʙ [Å]": 3.635
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "Xe",
+                    "ε/kʙ [K]": 161.42564851968228,
+                    "σ/kʙ [Å]": 3.86
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "N",
+                    "ε/kʙ [K]": 77.94998396407789,
+                    "σ/kʙ [Å]": 3.53
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "F",
+                    "ε/kʙ [K]": 75.4379214984082,
+                    "σ/kʙ [Å]": 3.445
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "O_H2O",
+                    "ε/kʙ [K]": 110.30865786510141,
+                    "σ/kʙ [Å]": 3.4749999999999996
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.9
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.9
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.9
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Si",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 13.697627108812481,
+                    "σ/kʙ [Å]": 2.4
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "Ni",
+                    "ε/kʙ [K]": 7.549999999999999,
+                    "σ/kʙ [Å]": 2.52
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "H",
+                    "ε/kʙ [K]": 7.599835524536041,
+                    "σ/kʙ [Å]": 2.685
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "C",
+                    "ε/kʙ [K]": 19.0090241727449,
+                    "σ/kʙ [Å]": 2.995
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "Xe",
+                    "ε/kʙ [K]": 35.51270195296325,
+                    "σ/kʙ [Å]": 3.2199999999999998
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "N",
+                    "ε/kʙ [K]": 17.14854221209488,
+                    "σ/kʙ [Å]": 2.8899999999999997
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "F",
+                    "ε/kʙ [K]": 16.595903108900096,
+                    "σ/kʙ [Å]": 2.8049999999999997
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "O_H2O",
+                    "ε/kʙ [K]": 24.267261897461772,
+                    "σ/kʙ [Å]": 2.835
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.26
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.26
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.26
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Ni",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 3.013398139879716,
+                    "σ/kʙ [Å]": 1.76
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "H",
+                    "ε/kʙ [K]": 7.6499999999999995,
+                    "σ/kʙ [Å]": 2.85
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "C",
+                    "ε/kʙ [K]": 19.134497641694175,
+                    "σ/kʙ [Å]": 3.16
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "Xe",
+                    "ε/kʙ [K]": 35.747111771442455,
+                    "σ/kʙ [Å]": 3.385
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "N",
+                    "ε/kʙ [K]": 17.261735138739674,
+                    "σ/kʙ [Å]": 3.0549999999999997
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "F",
+                    "ε/kʙ [K]": 16.70544821308306,
+                    "σ/kʙ [Å]": 2.9699999999999998
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "O_H2O",
+                    "ε/kʙ [K]": 24.42744358298674,
+                    "σ/kʙ [Å]": 3.0
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.425
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.425
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.425
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 3.033288772586582,
+                    "σ/kʙ [Å]": 1.925
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "C",
+                    "ε/kʙ [K]": 47.86,
+                    "σ/kʙ [Å]": 3.47
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "Xe",
+                    "ε/kʙ [K]": 89.41216024680311,
+                    "σ/kʙ [Å]": 3.6950000000000003
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "N",
+                    "ε/kʙ [K]": 43.17576866715867,
+                    "σ/kʙ [Å]": 3.365
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "F",
+                    "ε/kʙ [K]": 41.78436071067738,
+                    "σ/kʙ [Å]": 3.2800000000000002
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "O_H2O",
+                    "ε/kʙ [K]": 61.098936160951276,
+                    "σ/kʙ [Å]": 3.31
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.735
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.735
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.735
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "C",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 7.586987825573251,
+                    "σ/kʙ [Å]": 2.2350000000000003
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Xe",
+                    "typeB": "Xe",
+                    "ε/kʙ [K]": 167.03999999999996,
+                    "σ/kʙ [Å]": 3.92
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Xe",
+                    "typeB": "N",
+                    "ε/kʙ [K]": 80.66106867628274,
+                    "σ/kʙ [Å]": 3.59
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Xe",
+                    "typeB": "F",
+                    "ε/kʙ [K]": 78.0616371849835,
+                    "σ/kʙ [Å]": 3.505
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Xe",
+                    "typeB": "O_H2O",
+                    "ε/kʙ [K]": 114.1451707257035,
+                    "σ/kʙ [Å]": 3.535
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Xe",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.96
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Xe",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.96
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Xe",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.96
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "Xe",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 14.174027815518174,
+                    "σ/kʙ [Å]": 2.46
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "N",
+                    "typeB": "N",
+                    "ε/kʙ [K]": 38.95,
+                    "σ/kʙ [Å]": 3.26
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "N",
+                    "typeB": "F",
+                    "ε/kʙ [K]": 37.69477417361722,
+                    "σ/kʙ [Å]": 3.175
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "N",
+                    "typeB": "O_H2O",
+                    "ε/kʙ [K]": 55.11896225438212,
+                    "σ/kʙ [Å]": 3.205
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "N",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.63
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "N",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.63
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "N",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.63
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "N",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 6.844421881268279,
+                    "σ/kʙ [Å]": 2.13
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "F",
+                    "typeB": "F",
+                    "ε/kʙ [K]": 36.48,
+                    "σ/kʙ [Å]": 3.09
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "F",
+                    "typeB": "O_H2O",
+                    "ε/kʙ [K]": 53.342665850142886,
+                    "σ/kʙ [Å]": 3.12
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "F",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.545
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "F",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.545
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "F",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.545
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "F",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 6.6238494778786166,
+                    "σ/kʙ [Å]": 2.045
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "O_H2O",
+                    "typeB": "O_H2O",
+                    "ε/kʙ [K]": 78.0,
+                    "σ/kʙ [Å]": 3.15
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "O_H2O",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.575
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "O_H2O",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.575
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "O_H2O",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 1.575
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "O_H2O",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 9.685685014805989,
+                    "σ/kʙ [Å]": 2.075
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H_H2O",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.0
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H_H2O",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.0
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H_H2O",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.0
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H_H2O",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.5
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H_H2O",
+                    "typeB": "H_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.0
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H_H2O",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.0
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "H_H2O",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.5
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "M_H2O",
+                    "typeB": "M_H2O",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.0
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "M_H2O",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 0.0,
+                    "σ/kʙ [Å]": 0.5
+                },
+                {
+                    "potential": "Lennard-Jones",
+                    "shift [K]": 0.0,
+                    "tailCorrections": true,
+                    "typeA": "unit",
+                    "typeB": "unit",
+                    "ε/kʙ [K]": 1.202724284692786,
+                    "σ/kʙ [Å]": 1.0
+                }
+            ],
+            "pseudoAtoms": [
+                {
+                    "charge": 0.0,
+                    "mass": 28.086,
+                    "name": "Si",
+                    "source": "DREIDING"
+                },
+                {
+                    "charge": 0.0,
+                    "mass": 58.693,
+                    "name": "Ni",
+                    "source": "UFF"
+                },
+                {
+                    "charge": 0.0,
+                    "mass": 1.008,
+                    "name": "H",
+                    "source": "DREIDING"
+                },
+                {
+                    "charge": 0.0,
+                    "mass": 12.011,
+                    "name": "C",
+                    "source": "UFF"
+                },
+                {
+                    "charge": 0.0,
+                    "mass": 131.29,
+                    "name": "Xe",
+                    "source": "UFF"
+                },
+                {
+                    "charge": 0.0,
+                    "mass": 14.007,
+                    "name": "N",
+                    "source": "DREIDING"
+                },
+                {
+                    "charge": 0.0,
+                    "mass": 18.998,
+                    "name": "F",
+                    "source": "DREIDING"
+                },
+                {
+                    "charge": 0.0,
+                    "mass": 15.999,
+                    "name": "O_H2O",
+                    "source": "TIP4P"
+                },
+                {
+                    "charge": 0.52,
+                    "mass": 1.008,
+                    "name": "H_H2O",
+                    "source": "TIP4P"
+                },
+                {
+                    "charge": 0.52,
+                    "mass": 1.008,
+                    "name": "H_H2O",
+                    "source": "TIP4P"
+                },
+                {
+                    "charge": -1.04,
+                    "mass": 0.0,
+                    "name": "M_H2O",
+                    "source": "TIP4P"
+                },
+                {
+                    "charge": 1.0,
+                    "mass": 1.0,
+                    "name": "unit"
+                }
+            ]
+        },
+        "hardwareInfo": {
+            "compile_date": "Aug 27 2025",
+            "compile_time": "18:54:58",
+            "compiler": "gcc Clang 19.1.7 (https://github.com/conda-forge/clangdev-feedstock 966d7cbbe6cf2286c2ec30c49d8e957ba220cf18)",
+            "hostname": "sxm13",
+            "os_arch": "x86_64",
+            "os_release": "6.6.87.2-microsoft-standard-WSL2",
+            "os_type": "Linux",
+            "os_version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+            "start_date": "Mon, Apr 27",
+            "start_time": "09:02:00"
+        },
+        "initialConditions": {
+            "beta": 0.004035983951527738,
+            "box": [
+                [
+                    28.0748,
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.7190856978351056e-15,
+                    28.0748,
+                    0.0
+                ],
+                [
+                    1.8393705064473587e-15,
+                    1.8393705064473587e-15,
+                    30.0392
+                ]
+            ],
+            "boxAngles": [
+                90.0,
+                90.0,
+                90.0
+            ],
+            "boxLengths": [
+                28.0748,
+                28.0748,
+                30.0392
+            ],
+            "pressure": 0.0,
+            "temperature": 298.0
+        },
+        "reactions": null,
+        "units": {
+            "Boltzmann constant [-]": 0.8314464919307584,
+            "Coulomb potential [K]": 167101.08000665612,
+            "Energy to Kelvin [-]": 1.202724284692786,
+            "Kelvin to energy [-]": 0.8314457542157567,
+            "acceleration [m²/s]": 1e-08,
+            "charge [C/particle]": 1.60217733e-19,
+            "dielectric constant [s² C²/(kg m³)]": 1.5458657349975193e-05,
+            "diffusion [m²/s]": 1e-08,
+            "dipole moment [C.m]": 1.60217733e-29,
+            "electric field [V]": 1036427.222447343,
+            "electric potential [V]": 0.00010364272224473431,
+            "energy [J]": 1.6605402000000002e-23,
+            "force [N]": 1.6605402000000002e-13,
+            "length [m]": 1e-10,
+            "mass [kg]": 1.6605402e-27,
+            "polarizability [-]": 1.5458657349975198e-35,
+            "pressure [Pa]": 16605402.0,
+            "temperature": "Kelvin",
+            "time [s]": 1e-12,
+            "velocity [m/s]": 100.0
+        }
+    },
+    "output": {
+        "MCMoveStatistics": {
+            "system": {
+                "h2o": {
+                    "Widom": {
+                        "accepted": 0.0,
+                        "all": 100000,
+                        "constructed": 22407.0,
+                        "fraction": 0.0,
+                        "maxChange": 0.0,
+                        "total": 100000.0
+                    }
+                },
+                "system": null
+            }
+        },
+        "cpuTimings": {
+            "equilibration": 0.0,
+            "gridCreation": 0.0,
+            "h2o": {
+                "Widom": {
+                    "Ewald": 0.0011971460000000395,
+                    "NonEwald": 17.582529611000087,
+                    "Overhead": 0.034948728999728035,
+                    "Tail": 0.22836873999999882,
+                    "Total": 17.847044225999813
+                }
+            },
+            "initialization": 0.0,
+            "production": 19.210792599000005,
+            "summedSystemsAndComponents": {
+                "Widom": {
+                    "Ewald": 0.0011971460000000395,
+                    "NonEwald": 17.582529611000087,
+                    "Overhead": 0.034948728999728035,
+                    "Tail": 0.22836873999999882,
+                    "Total": 17.847044225999813
+                },
+                "allSummed": 19.144731691999816,
+                "energyPressureSampling": 1.211684896,
+                "overhead": 0.06606090700018896,
+                "productionSimulationTime": 19.210792599000005,
+                "propertySampling": 0.08600257000000029
+            },
+            "system": {
+                "energyPressureSampling": 1.211684896,
+                "propertySampling": 0.08600257000000029
+            },
+            "total": 19.210792599000005
+        },
+        "drift": {
+            "Ewald Fourier [K]": 0.0,
+            "Ewald exclusion [K]": 0.0,
+            "Ewald self [K]": 0.0,
+            "Total potential energy [K]": 0.0,
+            "Van der Waals (Tail) [K]": 0.0,
+            "bend [K]": 0.0,
+            "bendBend [K]": 0.0,
+            "bendTorsion [K]": 0.0,
+            "bond [K]": 0.0,
+            "bondBend [K]": 0.0,
+            "bondBond [K]": 0.0,
+            "bondTorsion [K]": 0.0,
+            "dU/dlambda Ewald [K]": 0.0,
+            "dU/dlambda Real [K]": 0.0,
+            "dU/dlambda VDW [K]": 0.0,
+            "external field Real [K]": 0.0,
+            "external field VDW [K]": 0.0,
+            "framework-molecule Rea [K]": 0.0,
+            "framework-molecule VDW [K]": 0.0,
+            "improperTorsion [K]": 0.0,
+            "intra Coulombic [K]": 0.0,
+            "intra VDW [K]": 0.0,
+            "inversionBend [K]": 0.0,
+            "molecule-molecule Real [K]": 0.0,
+            "molecule-molecule VDW [K]": 0.0,
+            "outOfPlaneBend [K]": 0.0,
+            "polarization [K]": 0.0,
+            "torsion [K]": 0.0,
+            "ureyBradley [K]": 0.0
+        },
+        "recomputedEnergies": {
+            "Ewald Fourier [K]": 0.0,
+            "Ewald exclusion [K]": 0.0,
+            "Ewald self [K]": 0.0,
+            "Total potential energy [K]": 0.0,
+            "Van der Waals (Tail) [K]": 0.0,
+            "bend [K]": 0.0,
+            "bendBend [K]": 0.0,
+            "bendTorsion [K]": 0.0,
+            "bond [K]": 0.0,
+            "bondBend [K]": 0.0,
+            "bondBond [K]": 0.0,
+            "bondTorsion [K]": 0.0,
+            "dU/dlambda Ewald [K]": 0.0,
+            "dU/dlambda Real [K]": 0.0,
+            "dU/dlambda VDW [K]": 0.0,
+            "external field Real [K]": 0.0,
+            "external field VDW [K]": 0.0,
+            "framework-molecule Rea [K]": 0.0,
+            "framework-molecule VDW [K]": 0.0,
+            "improperTorsion [K]": 0.0,
+            "intra Coulombic [K]": 0.0,
+            "intra VDW [K]": 0.0,
+            "inversionBend [K]": 0.0,
+            "molecule-molecule Real [K]": 0.0,
+            "molecule-molecule VDW [K]": 0.0,
+            "outOfPlaneBend [K]": 0.0,
+            "polarization [K]": 0.0,
+            "torsion [K]": 0.0,
+            "ureyBradley [K]": 0.0
+        },
+        "runningEnergies": {
+            "Ewald Fourier [K]": 0.0,
+            "Ewald exclusion [K]": 0.0,
+            "Ewald self [K]": 0.0,
+            "Total potential energy [K]": 0.0,
+            "Van der Waals (Tail) [K]": 0.0,
+            "bend [K]": 0.0,
+            "bendBend [K]": 0.0,
+            "bendTorsion [K]": 0.0,
+            "bond [K]": 0.0,
+            "bondBend [K]": 0.0,
+            "bondBond [K]": 0.0,
+            "bondTorsion [K]": 0.0,
+            "dU/dlambda Ewald [K]": 0.0,
+            "dU/dlambda Real [K]": 0.0,
+            "dU/dlambda VDW [K]": 0.0,
+            "external field Real [K]": 0.0,
+            "external field VDW [K]": 0.0,
+            "framework-molecule Rea [K]": 0.0,
+            "framework-molecule VDW [K]": 0.0,
+            "improperTorsion [K]": 0.0,
+            "intra Coulombic [K]": 0.0,
+            "intra VDW [K]": 0.0,
+            "inversionBend [K]": 0.0,
+            "molecule-molecule Real [K]": 0.0,
+            "molecule-molecule VDW [K]": 0.0,
+            "outOfPlaneBend [K]": 0.0,
+            "polarization [K]": 0.0,
+            "torsion [K]": 0.0,
+            "ureyBradley [K]": 0.0
+        }
+    },
+    "properties": {
+        "averageEnergies": {
+            "Framework-Molecule": {
+                "h2o": {
+                    "coulombFourier": {
+                        "block": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "confidence": 0.0,
+                        "mean": 0.0
+                    },
+                    "coulombReal": {
+                        "block": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "confidence": 0.0,
+                        "mean": 0.0
+                    },
+                    "tailCorrection": {
+                        "block": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "confidence": 0.0,
+                        "mean": 0.0
+                    },
+                    "total": {
+                        "block": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "confidence": 0.0,
+                        "mean": 0.0
+                    },
+                    "vanDerWaals": {
+                        "block": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "confidence": 0.0,
+                        "mean": 0.0
+                    }
+                }
+            },
+            "totalEnergy": {
+                "block": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "confidence": 0.0,
+                "mean": 0.0
+            }
+        },
+        "averageEnthalpy": null,
+        "averagePressure": {
+            "averagePressureTensor": {
+                "confidence": [
+                    [
+                        44175.40202610344,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        44175.40202610836,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        44175.40202610836
+                    ]
+                ],
+                "mean": [
+                    [
+                        -79550732.97136246,
+                        0.0,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        -79550732.97136246,
+                        0.0
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        -79550732.97136246
+                    ]
+                ]
+            },
+            "excessPressure": {
+                "block": [
+                    -79487079.65432195,
+                    -79566646.30062258,
+                    -79566646.30062258,
+                    -79566646.30062258,
+                    -79566646.30062258
+                ],
+                "confidence": 44175.402026103424,
+                "mean": -79550732.97136247
+            },
+            "idealGasPressure": {
+                "block": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "confidence": 0.0,
+                "mean": 0.0
+            },
+            "pressure": {
+                "block": [
+                    -79487079.65432195,
+                    -79566646.30062257,
+                    -79566646.30062257,
+                    -79566646.30062257,
+                    -79566646.30062257
+                ],
+                "confidence": 44175.402026103424,
+                "mean": -79550732.97136247
+            }
+        }
+    },
+    "seed": 12,
+    "version": "3.0.9"
+}

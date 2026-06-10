@@ -1,0 +1,2 @@
+$env:QT_LOGGING_RULES = "qt.network.ssl=false"
+& "C:\Users\34224\CCDC\ccdc-software\csd-python-api\miniconda\python.exe" "D:\GithubDesk\GTsR\benchmark\solvent\csd\run_csd.py" "D:\GithubDesk\GTsR\benchmark\solvent\test" -o "D:\GithubDesk\GTsR\benchmark\solvent\csd\output" -v

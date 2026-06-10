@@ -1,0 +1,19 @@
+[theme]
+primaryColor = "#EF7C00"
+backgroundColor = "#FFF9E8"
+secondaryBackgroundColor = "#E7F0F8"
+textColor = "#102A43"
+linkColor = "#003D7C"
+borderColor = "#D9A441"
+showWidgetBorder = true
+baseRadius = "small"
+
+[theme.sidebar]
+primaryColor = "#EF7C00"
+backgroundColor = "#003D7C"
+secondaryBackgroundColor = "#0B4F8C"
+textColor = "#FFFFFF"
+linkColor = "#FFD28A"
+
+[server]
+maxUploadSize = 10

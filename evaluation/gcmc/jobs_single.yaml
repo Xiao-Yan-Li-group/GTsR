@@ -1,0 +1,13 @@
+job_type: "Single"
+folder:
+    cifs_folder: "/path/to/cifs"
+    jobs_folder: "/path/to/jobs/single"
+file:
+    force_field_json: "/path/to/preparation/paras.json"
+    molecules_json: "/path/to/preparation/co2.json"
+setting:
+    temperature: 298
+    pressure: 100000
+    n_cycles: 20000
+    n_cycles_init: 10000
+    print_every: 1000
