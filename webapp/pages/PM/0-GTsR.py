@@ -198,10 +198,15 @@ if uploaded_file is not None:
 
     showmol(viewer, height=VIEWER_HEIGHT, width=VIEWER_WIDTH)
 
-    sol_type = st.selectbox(
-        "Solvent Type",
-        ["Free Only", "All"],
-    )
+    sol_type_col, cutoff_col = st.columns(2)
+    with sol_type_col:
+        sol_type = st.selectbox(
+            "Solvent Type",
+            ["Free Only", "All"],
+        )
+    with cutoff_col:
+        cutoff = st.number_input("threshold", min_value=0.0, max_value=1.0, value=0.5, step=0.1, key="cutoff")
+
     pred = st.button("🏃‍♂️ Start Cleaning Your MOF")
 
     upload_id = hashlib.sha256(cif_data).hexdigest()
@@ -220,13 +225,13 @@ if uploaded_file is not None:
         try:
             with st.spinner(f"Running the {checkpoint} solvent model..."):
                 runner = get_runner(checkpoint)
-                result = runner.predict(
+                result = runner.clean(
                     cif=input_path,
                     output=output_dir,
-                    threshold=0.5,
+                    threshold=cutoff,
                 )
         except Exception as error:
-            st.error(f"Prediction failed: {error}")
+            st.error("Your structure without any solvent.")
         else:
             st.session_state["prediction_result"] = result
             st.session_state["prediction_upload_id"] = upload_id
@@ -310,15 +315,27 @@ if uploaded_file is not None:
             for i, sol_smi in enumerate(solvent_smiles):
                 st.info("Solvents "+ str(i+1) + ": " + sol_smi)
 
-    elif result is not None:
-        st.info("The target was changed, please re-predict for it.")
-
-colored_header(
+        colored_header(
             label="Activation Stability Prediction",
             description="",
             color_name="orange-70",
         )
 
+        stability_pred = st.button("🏃‍♂️ Want to check stability?")
+
+        if stability_pred:
+
+            sta_runner = get_runner(checkpoint="stability")
+            score = sta_runner.stability(Path(result["framework"]))
+
+            if score == 1:
+                st.info("The cleaned structure is stable.")
+            elif score == 0:
+                st.error("The cleaned structure is not stable.")
+            
+
+    elif result is not None:
+        st.info("The target was changed, please re-predict for it.")
 
 
 

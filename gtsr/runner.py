@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pickle
 from pathlib import Path
 from typing import Any
 
@@ -8,12 +9,38 @@ import torch
 
 try:
     from .src.GCN import SolventAtomClassifier
-    from .src.cif_utils import cif2graph, cif2pos, label2cif, get_sol_smi
+    from .src.cif_utils import (
+        PoreDiameter,
+        PoreVolume,
+        RACs,
+        cif2graph,
+        cif2pos,
+        flatten_cell,
+        flatten_rac,
+        get_cell,
+        get_sol_smi,
+        label2cif,
+        n_atom,
+        convert2pymatgen
+    )
     from .src.data import GaussianDistance
     from .src.utils import load_checkpoint
 except ImportError:
     from src.GCN import SolventAtomClassifier
-    from src.cif_utils import cif2graph, cif2pos, label2cif, get_sol_smi
+    from src.cif_utils import (
+        PoreDiameter,
+        PoreVolume,
+        RACs,
+        cif2graph,
+        cif2pos,
+        flatten_cell,
+        flatten_rac,
+        get_cell,
+        get_sol_smi,
+        label2cif,
+        n_atom,
+        convert2pymatgen
+    )
     from src.data import GaussianDistance
     from src.utils import load_checkpoint
 
@@ -21,8 +48,7 @@ except ImportError:
 PACKAGE_DIR = Path(__file__).resolve().parent
 
 
-def _bundled_checkpoint(name: str) -> Path:
-    filename = f"{name}_best.pth"
+def _bundled_model(filename: str) -> Path:
     candidates = (
         PACKAGE_DIR / "ckpt" / filename,
         PACKAGE_DIR.parent / "ckpt" / filename,
@@ -30,11 +56,31 @@ def _bundled_checkpoint(name: str) -> Path:
     return next((path for path in candidates if path.is_file()), candidates[0])
 
 
+def _bundled_checkpoint(name: str) -> Path:
+    return _bundled_model(f"{name}_best.pth")
+
+
 CHECKPOINTS = {
     "free": _bundled_checkpoint("free"),
     "all": _bundled_checkpoint("all"),
 }
 DEFAULT_CHECKPOINT = CHECKPOINTS["free"]
+STABILITY_MODEL = _bundled_model("stability_best.pkl")
+RAC_FEATURE_NAMES = tuple(
+    f"{prefix}-{property_name}-{depth}"
+    for prefix, property_names in (
+        ("f-sbu", ("chi", "Z", "I", "T", "S")),
+        ("mc", ("chi", "Z", "I", "T", "S")),
+        ("D_mc", ("chi", "Z", "I", "T", "S")),
+        ("f-link", ("chi", "Z", "I", "T", "S")),
+        ("lc", ("chi", "Z", "I", "T", "S", "alpha")),
+        ("D_lc", ("chi", "Z", "I", "T", "S", "alpha")),
+        ("func", ("chi", "Z", "I", "T", "S", "alpha")),
+        ("D_func", ("chi", "Z", "I", "T", "S", "alpha")),
+    )
+    for property_name in property_names
+    for depth in range(4)
+)
 
 
 class GTsRunner:
@@ -44,7 +90,18 @@ class GTsRunner:
         checkpoint: str | Path = "",
         device: str | torch.device | None = None,
     ) -> None:
+        checkpoint_name = str(checkpoint).strip().lower()
         self.device = self._resolve_device(device)
+        self.stability_model = None
+        self.stability_imputer = None
+
+        if checkpoint_name == "stability":
+            self.checkpoint_path = self._resolve_stability_model()
+            self._load_stability_model()
+            self.checkpoint = None
+            self.task = "stability"
+            return
+
         self.checkpoint_path = self._resolve_checkpoint(checkpoint)
         self.checkpoint = load_checkpoint(self.checkpoint_path, device=self.device)
 
@@ -70,12 +127,20 @@ class GTsRunner:
             step=self.step,
         )
 
-    def predict(
+    def clean(
         self,
         cif: str | Path = "",
         output: str | Path = "",
         threshold: float | None = None,
     ) -> dict[str, Any]:
+        
+        convert2pymatgen(cif)
+
+        if self.task == "stability":
+            raise RuntimeError(
+                "clean() requires a GNN checkpoint; initialize GTsRunner with "
+                "checkpoint='free' or checkpoint='all'"
+            )
 
         cif_path = self._resolve_cif(cif)
         output_dir = self._resolve_output(cif_path, output)
@@ -175,6 +240,25 @@ class GTsRunner:
         return path
 
     @staticmethod
+    def _resolve_stability_model() -> Path:
+        path = STABILITY_MODEL.resolve()
+        if not path.is_file():
+            raise FileNotFoundError(f"Stability model not found: {path}")
+        return path
+
+    def _load_stability_model(self) -> None:
+        model_path = self._resolve_stability_model()
+        with model_path.open("rb") as model_file:
+            saved_model = pickle.load(model_file)
+
+        if isinstance(saved_model, dict):
+            self.stability_model = saved_model["model"]
+            self.stability_imputer = saved_model.get("imputer")
+        else:
+            self.stability_model = saved_model
+            self.stability_imputer = None
+
+    @staticmethod
     def _resolve_cif(cif: str | Path) -> Path:
         if not cif:
             raise ValueError("cif must be a path to an input CIF file")
@@ -193,3 +277,30 @@ class GTsRunner:
         path = path.resolve()
         path.mkdir(parents=True, exist_ok=True)
         return path
+
+    def stability(self, cif: str | Path):
+        cif_path = self._resolve_cif(cif)
+        cif_filename = str(cif_path)
+        cell = flatten_cell(get_cell(cif_filename))
+        pore_diameter = PoreDiameter(cif_filename)
+        pore_volume = PoreVolume(cif_filename)
+        rac = flatten_rac(RACs(cif_filename))
+
+        features = [
+            n_atom(cif_filename),
+            *cell.values(),
+            pore_diameter["Di"],
+            pore_diameter["Df"],
+            pore_diameter["Dif"],
+            pore_volume["Density"],
+            pore_volume["VF"],
+            *(rac.get(name, np.nan) for name in RAC_FEATURE_NAMES),
+        ]
+        feature_batch = np.asarray([features], dtype=np.float64)
+
+        if self.stability_model is None:
+            self._load_stability_model()
+        if self.stability_imputer is not None:
+            feature_batch = self.stability_imputer.transform(feature_batch)
+
+        return self.stability_model.predict(feature_batch)[0]

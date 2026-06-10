@@ -26,6 +26,7 @@ setup(
         "gtsr.ckpt": [
             "free_best.pth",
             "all_best.pth",
+            "stability_best.pkl",
         ],
     },
     include_package_data=True,
@@ -35,6 +36,7 @@ setup(
         "pymatgen>=2018.6.11",
         "scikit-learn>=1.0",
         "torch>=1.12",
+        "molSimplify==1.8.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

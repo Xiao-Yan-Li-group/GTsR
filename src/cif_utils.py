@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import os, collections
+import os, collections, stat, shutil, subprocess, sys
 from pathlib import Path
 from pymatgen.core import Structure
-from ase.io import read, write
+from ase.io import read
 from ase.build import sort
 from ase import neighborlist
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -13,9 +13,15 @@ from pymatgen.io.cif import CifWriter
 import networkx as nx
 from ase import Atoms
 
+from molSimplify.Informatics.MOF.MOF_descriptors import get_MOF_descriptors
+
 from rdkit import Chem
 from rdkit.Chem import rdDetermineBonds
 
+
+def convert2pymatgen(cif_path: str | Path):
+    struc = Structure.from_file(cif_path)
+    CifWriter(struc).write_file(cif_path)
 
 
 def cif2graph(
@@ -74,8 +80,8 @@ def make_label(cif_path1: str | Path, cif_path2: str | Path, tol=1e-3) -> np.nda
      
     return labels
     
-def label2cif(cif_path1: str | Path, label: np.ndarray, output_dir: str) -> Structure:
-    struct = Structure.from_file(cif_path1)
+def label2cif(cif_path: str | Path, label: np.ndarray, output_dir: str) -> Structure:
+    struct = Structure.from_file(cif_path)
     
     solvent = label == 1
     framework = ~solvent
@@ -88,11 +94,12 @@ def label2cif(cif_path1: str | Path, label: np.ndarray, output_dir: str) -> Stru
     os.makedirs(output_dir, exist_ok=True)
 
     framework_atoms = extract(framework)
-    stem = Path(cif_path1).stem
+    stem = Path(cif_path).stem
     CifWriter(framework_atoms).write_file(os.path.join(output_dir, stem + "_framework.cif"))
     if solvent.any():
         CifWriter(extract(solvent)).write_file(os.path.join(output_dir, stem + "_solvent.cif"))
         return extract(solvent)
+
     return None
 
 
@@ -239,3 +246,121 @@ def get_sol_smi(cif_path):
         else:
             pass
     return smis
+
+
+def remove_dir_with_permissions(dir_path):
+    def handle_permission_error(func, path, exc_info):
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    if os.path.exists(dir_path):
+        shutil.rmtree(dir_path, onerror=handle_permission_error)
+
+
+def RACs(cif_path):
+    os.makedirs("tmp_rac", exist_ok=True)
+    name = os.path.basename(cif_path).replace(".cif", "")
+    full_names, full_descriptors = get_MOF_descriptors(
+        cif_path, 3,
+        path='tmp_rac',
+        xyz_path=f'tmp_rac/{name}.xyz',
+        max_num_atoms=6000
+    )
+    descriptor_data = dict(zip(full_names, full_descriptors))
+    remove_dir_with_permissions("tmp_rac")
+    return descriptor_data
+
+
+def get_cell(cif_path):
+    structure = Structure.from_file(cif_path)
+    return structure.lattice.matrix
+
+
+def flatten_rac(descriptor_data):
+    return {f"{k}": v for k, v in descriptor_data.items()}
+
+
+def flatten_cell(cell):
+    flat = {}
+    for r in range(3):
+        for c in range(3):
+            flat[f"cell_{r}{c}"] = cell[r, c]
+    return flat
+
+
+def n_atom(cif_path):
+    return len(read(cif_path))
+
+
+def _network_executable():
+    executable = shutil.which("network")
+    if executable:
+        return executable
+
+    environment_executable = Path(sys.executable).with_name("network")
+    if environment_executable.is_file():
+        return str(environment_executable)
+
+    raise FileNotFoundError(
+        "Zeo++ executable 'network' was not found in PATH or beside the "
+        f"current Python interpreter: {sys.executable}"
+    )
+
+
+def PoreDiameter(cif_path, prefix="tmp_pd"):
+
+    results = {}
+
+    tmp_file = f"{prefix}.txt"
+    _ = subprocess.run(
+                        [_network_executable(), "-ha", "-res", tmp_file, str(cif_path)],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        check=True,
+                    )
+    with open(tmp_file) as f:
+        line = f.readline().split()
+        results["Di"], results["Df"], results["Dif"] = map(float, line[1:4])
+    os.remove(tmp_file)
+
+    return results
+
+
+def PoreVolume(cif_path, prefix="tmp_pv"):
+
+    results = {}
+    tmp_file = f"{prefix}.txt"
+    
+    _ = subprocess.run(
+                        [
+                            _network_executable(),
+                            "-ha",
+                            "-volpo",
+                            "0",
+                            "0",
+                            "5000",
+                            tmp_file,
+                            str(cif_path),
+                        ],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        check=True,
+                    )
+    with open(tmp_file) as f:
+        for i, row in enumerate(f):
+            if i == 0:
+                Density = float(row.split('Density:')[1].split()[0])
+                POAV = float(row.split('POAV_A^3:')[1].split()[0])
+                PONAV = float(row.split('PONAV_A^3:')[1].split()[0])
+                GPOAV = float(row.split('POAV_cm^3/g:')[1].split()[0])
+                GPONAV = float(row.split('PONAV_cm^3/g:')[1].split()[0])
+                POAV_volume_fraction = float(row.split('POAV_Volume_fraction:')[1].split()[0])
+                PONAV_volume_fraction = float(row.split('PONAV_Volume_fraction:')[1].split()[0])
+    results["PV"] = [POAV, GPOAV]
+    results["NPV"] = [PONAV, GPONAV]
+    results["VF"] = POAV_volume_fraction
+    results["NVF"] = PONAV_volume_fraction
+    results["Density"] = Density
+
+    os.remove(tmp_file)
+
+    return results
