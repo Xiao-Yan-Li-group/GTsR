@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import streamlit as st
-from annotated_text import annotated_text
 
 
 WEBAPP_DIR = Path(__file__).resolve().parent

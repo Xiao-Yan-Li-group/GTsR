@@ -3,4 +3,3 @@ pymatgen>=2018.6.11
 streamlit>=1.36
 stmol>=0.0.9
 ipython_genutils>=0.2
-annotated_text
