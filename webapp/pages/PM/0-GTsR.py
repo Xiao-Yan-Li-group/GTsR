@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import logging
 import sys
 import tempfile
 from io import BytesIO
@@ -17,6 +18,7 @@ PROJECT_DIR = WEBAPP_DIR.parent
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 VIEWER_WIDTH = 800
 VIEWER_HEIGHT = 500
+LOGGER = logging.getLogger(__name__)
 
 logs_dir = WEBAPP_DIR / "logs"
 logs_dir.mkdir(parents=True, exist_ok=True)
@@ -336,14 +338,18 @@ if uploaded_file is not None:
         stability_pred = st.button("🏃‍♂️ Want to check stability?")
 
         if stability_pred:
-
-            sta_runner = get_runner(checkpoint="stability")
-            score = sta_runner.stability(Path(result["framework"]))
-
-            if score == 1:
-                st.info("The cleaned structure is stable.")
-            elif score == 0:
-                st.error("The cleaned structure is not stable.")
+            try:
+                with st.spinner("Predicting activation stability..."):
+                    sta_runner = get_runner(checkpoint="stability")
+                    score = sta_runner.stability(Path(result["framework"]))
+            except Exception:
+                LOGGER.exception("Stability prediction failed")
+                st.error("Stability prediction failed. Please try again later.")
+            else:
+                if score == 1:
+                    st.info("The cleaned structure is stable.")
+                elif score == 0:
+                    st.error("The cleaned structure is not stable.")
             
 
     elif result is not None:

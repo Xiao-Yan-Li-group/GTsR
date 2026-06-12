@@ -259,6 +259,16 @@ class GTsRunner:
             self.stability_model = saved_model
             self.stability_imputer = None
 
+        self._make_stability_model_compatible()
+
+    def _make_stability_model_compatible(self) -> None:
+        """Fill attributes absent from models saved by older scikit-learn versions."""
+        estimators = [self.stability_model]
+        estimators.extend(getattr(self.stability_model, "estimators_", []))
+        for estimator in estimators:
+            if estimator is not None and not hasattr(estimator, "monotonic_cst"):
+                estimator.monotonic_cst = None
+
     @staticmethod
     def _resolve_cif(cif: str | Path) -> Path:
         if not cif:
