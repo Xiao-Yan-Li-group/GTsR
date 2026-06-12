@@ -17,18 +17,8 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 VIEWER_WIDTH = 800
 VIEWER_HEIGHT = 500
 
-import shutil
-
 input_dir = WEBAPP_DIR / "logs" / "uploads"
 output_dir = WEBAPP_DIR / "logs" / "predictions"
-
-try:
-    for dir_path in [input_dir, output_dir]:
-        for file in dir_path.glob("*"):
-            if file.is_file():
-                file.unlink()
-except:
-    pass
 
 input_dir.mkdir(parents=True, exist_ok=True)
 output_dir.mkdir(parents=True, exist_ok=True)
@@ -350,7 +340,13 @@ if uploaded_file is not None:
         st.info("The target was changed, please re-predict for it.")
 
 
-
+try:
+    for dir_path in [input_dir, output_dir]:
+        for file in dir_path.glob("*"):
+            if file.is_file():
+                file.unlink()
+except:
+    pass
 
 colored_header(
     label="Citation",
