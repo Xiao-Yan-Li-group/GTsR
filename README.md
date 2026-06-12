@@ -4,11 +4,14 @@
         <img src="https://raw.githubusercontent.com/Xiao-Yan-Li-group/GTsR/main/webapp/imgs/gtsr_logo.png" alt="GTsR logo" width="500"/>
 </div> 
 
+[![Requires Python 3.10](https://img.shields.io/badge/Python-3.9-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+[![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/sxm13/pypi-dev/blob/main/LICENSE)
+
 **GTsR (GNN Tool for Solvent Removal)** is a tool for solvent identification, solvent removal, and activation-stability prediction in metal-organic frameworks (MOFs).
 
 GTsR uses graph neural networks to classify atoms in CIF structures and generate solvent-free framework CIF files. It also provides a random forest model that predicts the activation stability of cleaned MOFs using structural, pore, and RAC descriptors.
 
-## Bundled Models
+## Models
 
 | `checkpoint` | Model file | Purpose |
 | --- | --- | --- |
@@ -43,21 +46,7 @@ result = runner.clean(
 )
 ```
 
-### Predict Activation Stability
-
-```python
-from gtsr import GTsRunner
-
-runner = GTsRunner(checkpoint="stability")
-score = runner.stability(cif="cleaned_framework.cif")
-
-if score == 1:
-    print("The cleaned structure is stable.")
-else:
-    print("The cleaned structure is not stable.")
-```
-
-## `clean()` Result
+#### `clean()` Result
 
 `clean()` returns a dictionary containing the following fields:
 
@@ -76,6 +65,20 @@ else:
 | `probabilities` | Solvent probability for each atom |
 | `labels` | Predicted class label for each atom |
 | `solvent_smiles` | SMILES strings of identified solvents |
+
+### Predict Activation Stability
+
+```python
+from gtsr import GTsRunner
+
+runner = GTsRunner(checkpoint="stability")
+score = runner.stability(cif="cleaned_framework.cif")
+
+if score == 1:
+    print("The cleaned structure is stable.")
+else:
+    print("The cleaned structure is not stable.")
+```
 
 ## Web Interface
 
