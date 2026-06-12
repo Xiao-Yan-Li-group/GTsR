@@ -5,6 +5,8 @@ channels:
 dependencies:
   - python=3.10
   - zeopp-lsmo
+  - molSimplify==1.8.0
+  - openbabel-wheel==3.1.1.23
   - pip
   - pip:
       - ase>=3.19
@@ -16,5 +18,3 @@ dependencies:
       - ipython_genutils>=0.2
       - streamlit_extras
       - torch>=1.12
-      - molSimplify==1.8.0
-      - openbabel-wheel==3.1.1.23
