@@ -338,18 +338,14 @@ if uploaded_file is not None:
         stability_pred = st.button("🏃‍♂️ Want to check stability?")
 
         if stability_pred:
-            try:
-                with st.spinner("Predicting activation stability..."):
-                    sta_runner = get_runner(checkpoint="stability")
-                    score = sta_runner.stability(Path(result["framework"]))
-            except Exception:
-                LOGGER.exception("Stability prediction failed")
-                st.error("Stability prediction failed. Please try again later.")
-            else:
-                if score == 1:
-                    st.info("The cleaned structure is stable.")
-                elif score == 0:
-                    st.error("The cleaned structure is not stable.")
+            with st.spinner("Predicting activation stability..."):
+                sta_runner = get_runner(checkpoint="stability")
+                score = sta_runner.stability(Path(result["framework"]))
+
+            if score == 1:
+                st.info("The cleaned structure is stable.")
+            elif score == 0:
+                st.error("The cleaned structure is not stable.")
             
 
     elif result is not None:
