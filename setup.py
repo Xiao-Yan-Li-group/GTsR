@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parent
 
 
 setup(
-    name="gtsr-mof",
+    name="gtsr",
     version="0.0.1",
     description="Graph neural network tool for solvent removal from MOF structures",
     long_description=(ROOT / "README.md").read_text(encoding="utf-8"),
