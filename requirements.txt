@@ -7,3 +7,4 @@ streamlit_extras
 scikit-learn>=1.0
 torch>=1.12
 molSimplify==1.8.0
+rdkit
