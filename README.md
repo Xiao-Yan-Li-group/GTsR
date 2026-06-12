@@ -4,12 +4,12 @@ GTsR is a **g**raph neural network based **t**ool for solvent identification, **
 
 
 <div align="center">
-        <img src="https://raw.githubusercontent.com/Xiao-Yan-Li-group/Webapp/main/imgs/gtsr_logo.png" alt="GTsR logo" width="500"/>
+        <img src="https://raw.githubusercontent.com/Xiao-Yan-Li-group/Web-Interface/main/imgs/gtsr_logo.png" alt="GTsR logo" width="500"/>
 </div> 
 
                       
                        
-![GitHub repo size](https://img.shields.io/github/repo-size/Xiao-Yan-Li-Group/GTsR?logo=github&logoColor=white&label=Repo%20Size)[![PyPI](https://img.shields.io/pypi/v/gtsr?logo=pypi&logoColor=white)](https://pypi.org/project/gtsr?logo=pypi&logoColor=white)[![Requires Python 3.10](https://img.shields.io/badge/Python-3.9-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)[![GitHub license](https://img.shields.io/github/license/Xiao-Yan-Li-Group/GTsR.svg)](https://github.com/Xiao-Yan-Li-Group/GTsR/blob/main/LICENSE)[![GitHub issues](https://img.shields.io/github/issues/Xiao-Yan-Li-Group/GTsR.svg)](https://GitHub.com/Xiao-Yan-Li-Group/GTsR/issues/)
+![GitHub repo size](https://img.shields.io/github/repo-size/Xiao-Yan-Li-Group/GTsR?logo=github&logoColor=white&label=Repo%20Size)[![PyPI](https://img.shields.io/pypi/v/gtsr?logo=pypi&logoColor=white)](https://pypi.org/project/gtsr?logo=pypi&logoColor=white)[![Requires Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)[![GitHub license](https://img.shields.io/github/license/Xiao-Yan-Li-Group/GTsR.svg)](https://github.com/Xiao-Yan-Li-Group/GTsR/blob/main/LICENSE)
 
 ### Pretrained Models
 
