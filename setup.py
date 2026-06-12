@@ -13,7 +13,7 @@ setup(
     long_description=(ROOT / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
     author="Xiao-Yan Li Group",
-    license="CC-BY-4.0",
+    license="MIT",
     python_requires=">=3.9",
     packages=["gtsr", "gtsr.src", "gtsr.ckpt"],
     py_modules=["GTsRunner"],
@@ -38,6 +38,7 @@ setup(
         "torch>=1.12",
         "molSimplify==1.8.0",
         "rdkit",
+        "networkx"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

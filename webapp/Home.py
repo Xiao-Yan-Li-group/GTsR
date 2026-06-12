@@ -87,7 +87,7 @@ def home_page() -> None:
 
 
 apply_nus_theme()
-st.sidebar.image(str(WEBAPP_DIR / "imgs" / "mace_log.avif"))
+st.sidebar.image(str(WEBAPP_DIR / "imgs" / "mace_log.png"))
 st.sidebar.write("© 2026 Xiao-Yan Li Group. CC-BY-4.0 License.")
 
 navigation = st.navigation(
