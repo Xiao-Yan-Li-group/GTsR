@@ -4,3 +4,6 @@ streamlit>=1.36
 stmol>=0.0.9
 ipython_genutils>=0.2
 streamlit_extras
+scikit-learn>=1.0
+torch>=1.12
+molSimplify==1.8.0
