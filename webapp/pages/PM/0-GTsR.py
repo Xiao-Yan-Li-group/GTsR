@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import sys
+import tempfile
 from io import BytesIO
 from pathlib import Path
 
@@ -17,9 +18,18 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 VIEWER_WIDTH = 800
 VIEWER_HEIGHT = 500
 
-input_dir = WEBAPP_DIR / "logs" / "uploads"
-output_dir = WEBAPP_DIR / "logs" / "predictions"
+logs_dir = WEBAPP_DIR / "logs"
+logs_dir.mkdir(parents=True, exist_ok=True)
 
+if "gtsr_workspace" not in st.session_state:
+    st.session_state["gtsr_workspace"] = tempfile.TemporaryDirectory(
+        prefix="session-",
+        dir=logs_dir,
+    )
+
+session_dir = Path(st.session_state["gtsr_workspace"].name)
+input_dir = session_dir / "uploads"
+output_dir = session_dir / "predictions"
 input_dir.mkdir(parents=True, exist_ok=True)
 output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -339,14 +349,6 @@ if uploaded_file is not None:
     elif result is not None:
         st.info("The target was changed, please re-predict for it.")
 
-
-try:
-    for dir_path in [input_dir, output_dir]:
-        for file in dir_path.glob("*"):
-            if file.is_file():
-                file.unlink()
-except:
-    pass
 
 colored_header(
     label="Citation",
