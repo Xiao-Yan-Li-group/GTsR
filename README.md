@@ -92,7 +92,7 @@ else:
 
 ## Web Interface
 
-[Streamlit demo](https://xiao-yan-li-group.streamlit.app/GTsR)
+[Streamlit demo](https://xiao-yan-li-group-nus.streamlit.app/GTsR)
 
 ## Citation
 
