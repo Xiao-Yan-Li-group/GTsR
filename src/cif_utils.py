@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os, collections, stat, shutil, subprocess, sys
+import os, collections, stat, shutil, subprocess, sys, tempfile
 from pathlib import Path
 from pymatgen.core import Structure
 from ase.io import read
@@ -257,17 +257,19 @@ def remove_dir_with_permissions(dir_path):
 
 
 def RACs(cif_path):
-    os.makedirs("tmp_rac", exist_ok=True)
-    name = os.path.basename(cif_path).replace(".cif", "")
-    full_names, full_descriptors = get_MOF_descriptors(
-        cif_path, 3,
-        path='tmp_rac',
-        xyz_path=f'tmp_rac/{name}.xyz',
-        max_num_atoms=6000
-    )
-    descriptor_data = dict(zip(full_names, full_descriptors))
-    remove_dir_with_permissions("tmp_rac")
-    return descriptor_data
+    tmp_dir = Path(tempfile.mkdtemp(prefix="gtsr-rac-"))
+    try:
+        name = Path(cif_path).stem
+        full_names, full_descriptors = get_MOF_descriptors(
+            cif_path,
+            3,
+            path=str(tmp_dir),
+            xyz_path=str(tmp_dir / f"{name}.xyz"),
+            max_num_atoms=6000,
+        )
+        return dict(zip(full_names, full_descriptors))
+    finally:
+        remove_dir_with_permissions(tmp_dir)
 
 
 def get_cell(cif_path):
@@ -306,61 +308,61 @@ def _network_executable():
     )
 
 
-def PoreDiameter(cif_path, prefix="tmp_pd"):
-
-    results = {}
-
-    tmp_file = f"{prefix}.txt"
-    _ = subprocess.run(
-                        [_network_executable(), "-ha", "-res", tmp_file, str(cif_path)],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        check=True,
-                    )
-    with open(tmp_file) as f:
-        line = f.readline().split()
-        results["Di"], results["Df"], results["Dif"] = map(float, line[1:4])
-    os.remove(tmp_file)
-
-    return results
+def PoreDiameter(cif_path):
+    tmp_dir = Path(tempfile.mkdtemp(prefix="gtsr-pd-"))
+    tmp_file = tmp_dir / f"pd.txt"
+    try:
+        subprocess.run(
+            [_network_executable(), "-ha", "-res", str(tmp_file), str(cif_path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+        )
+        with tmp_file.open() as file:
+            line = file.readline().split()
+            return dict(zip(("Di", "Df", "Dif"), map(float, line[1:4])))
+    finally:
+        remove_dir_with_permissions(tmp_dir)
 
 
-def PoreVolume(cif_path, prefix="tmp_pv"):
-
-    results = {}
-    tmp_file = f"{prefix}.txt"
-    
-    _ = subprocess.run(
-                        [
-                            _network_executable(),
-                            "-ha",
-                            "-volpo",
-                            "0",
-                            "0",
-                            "5000",
-                            tmp_file,
-                            str(cif_path),
-                        ],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        check=True,
-                    )
-    with open(tmp_file) as f:
-        for i, row in enumerate(f):
-            if i == 0:
-                Density = float(row.split('Density:')[1].split()[0])
-                POAV = float(row.split('POAV_A^3:')[1].split()[0])
-                PONAV = float(row.split('PONAV_A^3:')[1].split()[0])
-                GPOAV = float(row.split('POAV_cm^3/g:')[1].split()[0])
-                GPONAV = float(row.split('PONAV_cm^3/g:')[1].split()[0])
-                POAV_volume_fraction = float(row.split('POAV_Volume_fraction:')[1].split()[0])
-                PONAV_volume_fraction = float(row.split('PONAV_Volume_fraction:')[1].split()[0])
-    results["PV"] = [POAV, GPOAV]
-    results["NPV"] = [PONAV, GPONAV]
-    results["VF"] = POAV_volume_fraction
-    results["NVF"] = PONAV_volume_fraction
-    results["Density"] = Density
-
-    os.remove(tmp_file)
-
-    return results
+def PoreVolume(cif_path):
+    tmp_dir = Path(tempfile.mkdtemp(prefix="gtsr-pv-"))
+    tmp_file = tmp_dir / "pv.txt"
+    try:
+        subprocess.run(
+            [
+                _network_executable(),
+                "-ha",
+                "-volpo",
+                "0",
+                "0",
+                "5000",
+                str(tmp_file),
+                str(cif_path),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+        )
+        with tmp_file.open() as file:
+            row = file.readline()
+            density = float(row.split("Density:")[1].split()[0])
+            poav = float(row.split("POAV_A^3:")[1].split()[0])
+            ponav = float(row.split("PONAV_A^3:")[1].split()[0])
+            gpoav = float(row.split("POAV_cm^3/g:")[1].split()[0])
+            gponav = float(row.split("PONAV_cm^3/g:")[1].split()[0])
+            poav_volume_fraction = float(
+                row.split("POAV_Volume_fraction:")[1].split()[0]
+            )
+            ponav_volume_fraction = float(
+                row.split("PONAV_Volume_fraction:")[1].split()[0]
+            )
+        return {
+            "PV": [poav, gpoav],
+            "NPV": [ponav, gponav],
+            "VF": poav_volume_fraction,
+            "NVF": ponav_volume_fraction,
+            "Density": density,
+        }
+    finally:
+        remove_dir_with_permissions(tmp_dir)
