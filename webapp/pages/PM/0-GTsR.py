@@ -17,6 +17,22 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 VIEWER_WIDTH = 800
 VIEWER_HEIGHT = 500
 
+import shutil
+
+input_dir = WEBAPP_DIR / "logs" / "uploads"
+output_dir = WEBAPP_DIR / "logs" / "predictions"
+
+try:
+    for dir_path in [input_dir, output_dir]:
+        for file in dir_path.glob("*"):
+            if file.is_file():
+                file.unlink()
+except:
+    pass
+
+input_dir.mkdir(parents=True, exist_ok=True)
+output_dir.mkdir(parents=True, exist_ok=True)
+
 if str(PROJECT_DIR) not in sys.path:
     sys.path.insert(0, str(PROJECT_DIR))
 
@@ -213,10 +229,6 @@ if uploaded_file is not None:
     checkpoint = "free" if sol_type == "Free Only" else "all"
 
     if pred:
-        input_dir = WEBAPP_DIR / "logs" / "uploads"
-        output_dir = WEBAPP_DIR / "logs" / "predictions"
-        input_dir.mkdir(parents=True, exist_ok=True)
-        output_dir.mkdir(parents=True, exist_ok=True)
 
         safe_name = Path(uploaded_file.name).name
         input_path = input_dir / safe_name
