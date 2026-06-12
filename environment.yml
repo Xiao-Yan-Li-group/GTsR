@@ -1,0 +1,19 @@
+name: gtsr
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.10
+  - zeopp-lsmo
+  - ase>=3.19
+  - pymatgen>=2018.6.11
+  - scikit-learn>=1.0
+  - rdkit
+  - pip
+  - pip:
+      - streamlit>=1.36
+      - stmol>=0.0.9
+      - ipython_genutils>=0.2
+      - streamlit_extras
+      - torch>=1.12
+      - molSimplify==1.8.0

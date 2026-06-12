@@ -36,7 +36,8 @@ setup(
         "pymatgen>=2018.6.11",
         "scikit-learn>=1.0",
         "torch>=1.12",
-        "molSimplify==1.8.0"
+        "molSimplify==1.8.0",
+        "rdkit",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
