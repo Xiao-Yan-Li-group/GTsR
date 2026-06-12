@@ -19,7 +19,7 @@ st.set_page_config(
             ### GUI for the model/tool/package/software developed by Xiao-Yan Li's group.
 
             **Group Website**: https://www.xiaoyanli-mace.com/                                                  
-            **GitHub**: https://github.com/lxycat
+            **GitHub**: https://github.com/Xiao-Yan-Li-group
 
             Each page corresponds to a standalone software tool or program.
         """,

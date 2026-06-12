@@ -95,9 +95,9 @@ def label2cif(cif_path: str | Path, label: np.ndarray, output_dir: str) -> Struc
 
     framework_atoms = extract(framework)
     stem = Path(cif_path).stem
-    CifWriter(framework_atoms).write_file(os.path.join(output_dir, stem + "_framework.cif"))
+    CifWriter(framework_atoms).write_file(os.path.join(output_dir, stem + "_gtsr.cif"))
     if solvent.any():
-        CifWriter(extract(solvent)).write_file(os.path.join(output_dir, stem + "_solvent.cif"))
+        CifWriter(extract(solvent)).write_file(os.path.join(output_dir, stem + "_sol.cif"))
         return extract(solvent)
 
     return None

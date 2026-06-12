@@ -156,11 +156,12 @@ class GTsRunner:
         label2cif(cif_path, labels, str(output_dir))
 
         stem = cif_path.stem
-        framework_path = output_dir / f"{stem}_framework.cif"
-        solvent_path = output_dir / f"{stem}_solvent.cif"
-
-        sol_smis = get_sol_smi(solvent_path)
-
+        framework_path = output_dir / f"{stem}_gtsr.cif"
+        solvent_path = output_dir / f"{stem}_sol.cif"
+        try:
+            sol_smis = get_sol_smi(solvent_path)
+        except:
+            sol_smis = None
         return {
             "input": str(cif_path),
             "output": str(output_dir),
