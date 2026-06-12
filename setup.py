@@ -1,9 +1,39 @@
 from pathlib import Path
+import shutil
+import subprocess
 
 from setuptools import setup
+from setuptools.command.develop import develop
+from setuptools.command.install import install
 
 
 ROOT = Path(__file__).resolve().parent
+
+
+def install_conda_dependency():
+    conda_executable = shutil.which("conda")
+    if not conda_executable:
+        print(
+            "Warning: conda was not found. Please install "
+            "'conda-forge::zeopp-lsmo' manually."
+        )
+        return
+
+    subprocess.check_call(
+        [conda_executable, "install", "-y", "conda-forge::zeopp-lsmo"]
+    )
+
+
+class InstallWithConda(install):
+    def run(self):
+        install_conda_dependency()
+        super().run()
+
+
+class DevelopWithConda(develop):
+    def run(self):
+        install_conda_dependency()
+        super().run()
 
 
 setup(
@@ -30,6 +60,10 @@ setup(
         ],
     },
     include_package_data=True,
+    cmdclass={
+        "install": InstallWithConda,
+        "develop": DevelopWithConda,
+    },
     install_requires=[
         "ase>=3.19",
         "numpy>=1.21",

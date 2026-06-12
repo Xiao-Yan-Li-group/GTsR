@@ -1,44 +1,49 @@
-# GTsR
+<h1 align="center">GTsR</h1>
+
+GTsR is a **g**raph neural network based **t**ool for solvent identification, **s**olvent **r**emoval, and activation-stability prediction in metal-organic frameworks (MOFs).
+
 
 <div align="center">
-        <img src="https://raw.githubusercontent.com/Xiao-Yan-Li-group/GTsR/main/webapp/imgs/gtsr_logo.png" alt="GTsR logo" width="500"/>
+        <img src="https://raw.githubusercontent.com/Xiao-Yan-Li-group/Webapp/main/imgs/gtsr_logo.png" alt="GTsR logo" width="500"/>
 </div> 
 
-[![Requires Python 3.10](https://img.shields.io/badge/Python-3.9-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
-[![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/sxm13/pypi-dev/blob/main/LICENSE)
+                      
+                       
+![GitHub repo size](https://img.shields.io/github/repo-size/Xiao-Yan-Li-Group/GTsR?logo=github&logoColor=white&label=Repo%20Size)[![PyPI](https://img.shields.io/pypi/v/gtsr?logo=pypi&logoColor=white)](https://pypi.org/project/gtsr?logo=pypi&logoColor=white)[![Requires Python 3.10](https://img.shields.io/badge/Python-3.9-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)[![GitHub license](https://img.shields.io/github/license/Xiao-Yan-Li-Group/GTsR.svg)](https://github.com/Xiao-Yan-Li-Group/GTsR/blob/main/LICENSE)[![GitHub issues](https://img.shields.io/github/issues/Xiao-Yan-Li-Group/GTsR.svg)](https://GitHub.com/Xiao-Yan-Li-Group/GTsR/issues/)
 
-**GTsR (GNN Tool for Solvent Removal)** is a tool for solvent identification, solvent removal, and activation-stability prediction in metal-organic frameworks (MOFs).
+### Pretrained Models
 
-GTsR uses graph neural networks to classify atoms in CIF structures and generate solvent-free framework CIF files. It also provides a random forest model that predicts the activation stability of cleaned MOFs using structural, pore, and RAC descriptors.
-
-## Models
-
-| `checkpoint` | Model file | Purpose |
+| Checkpoint | File | Purpose |
 | --- | --- | --- |
-| `free` (default) | `ckpt/free_best.pth` | Remove free solvent |
+| `free` | `ckpt/free_best.pth` | Remove free solvent |
 | `all` | `ckpt/all_best.pth` | Remove all solvent |
 | `stability` | `ckpt/stability_best.pkl` | Predict activation stability |
-
-The `free` and `all` checkpoints are atom-level GNN classifiers. The `stability` checkpoint is a random forest model bundled with its missing-value imputer.
 
 ## Installation
 
 ```bash
 git clone https://github.com/coollkr/GTsR.git
 cd GTsR
+conda env create -f environment.yml
+conda activate gtsr
 pip install -e .
 ```
 
-## Usage
+or
 
-### Solvent Removal
+```bash
+conda install -c conda-forge zeopp-lsmo
+pip install gtsr
+```
+
+### Usage
+
+- Remove solvent
 
 ```python
 from gtsr import GTsRunner
 
-runner = GTsRunner(checkpoint="free") ### for free solvent removal
-runner = GTsRunner(checkpoint="all") ### for all solvent removal
-runner = GTsRunner(checkpoint="path/to/ckpt.pth", device="cpu") #### use your model
+runner = GTsRunner(checkpoint="free")
 result = runner.clean(
     cif="input.cif",
     output="prediction",
@@ -46,19 +51,24 @@ result = runner.clean(
 )
 ```
 
-#### `clean()` Result
+You can also use:
 
-`clean()` returns a dictionary containing the following fields:
+```python
+runner = GTsRunner(checkpoint="all")
+runner = GTsRunner(checkpoint="path/to/ckpt.pth", device="cpu")
+```
+
+`runner.clean()` returns a dictionary with the following fields:
 
 | Field | Description |
 | --- | --- |
 | `input` | Absolute path to the input CIF |
 | `output` | Output directory |
 | `framework` | Path to the cleaned framework CIF |
-| `solvent` | Path to the solvent CIF, or `None` if no file was generated |
+| `solvent` | Path to the solvent CIF, or `None` if not generated |
 | `checkpoint` | Path to the checkpoint used for prediction |
 | `task` | Task name stored in the checkpoint |
-| `threshold` | Atom-classification threshold |
+| `threshold` | Atom classification threshold |
 | `num_atoms` | Total number of atoms |
 | `num_framework_atoms` | Number of framework atoms |
 | `num_solvent_atoms` | Number of solvent atoms |
@@ -66,7 +76,7 @@ result = runner.clean(
 | `labels` | Predicted class label for each atom |
 | `solvent_smiles` | SMILES strings of identified solvents |
 
-### Predict Activation Stability
+- Predict activation stability
 
 ```python
 from gtsr import GTsRunner
@@ -82,11 +92,7 @@ else:
 
 ## Web Interface
 
-[Host on Streamlit](https://xiao-yan-li-group.streamlit.app/GTsR)
-or in your location
-```bash
-streamlit run webapp/Home.py
-```
+[Streamlit demo](https://xiao-yan-li-group.streamlit.app/GTsR)
 
 ## Citation
 
@@ -102,4 +108,4 @@ Update the following entry when the associated publication becomes available:
 
 ## License
 
-The repository's [`LICENSE`](LICENSE) file currently uses the MIT License.
+This project is released under the MIT License. See [LICENSE](LICENSE) for details.
