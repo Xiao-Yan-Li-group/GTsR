@@ -1,23 +1,18 @@
 # GTsR
 
+<div align="center">
+        <img src="https://raw.githubusercontent.com/Xiao-Yan-Li-group/GTsR/main/webapp/imgs/gtsr_logo.png" alt="GTsR logo" width="500"/>
+</div> 
+
 **GTsR (GNN Tool for Solvent Removal)** is a tool for solvent identification, solvent removal, and activation-stability prediction in metal-organic frameworks (MOFs).
 
 GTsR uses graph neural networks to classify atoms in CIF structures and generate solvent-free framework CIF files. It also provides a random forest model that predicts the activation stability of cleaned MOFs using structural, pore, and RAC descriptors.
-
-## Features
-
-- Identify and remove free solvent from MOFs.
-- Identify and remove all solvent from MOFs.
-- Export framework CIF files, solvent CIF files, atom labels, and prediction probabilities.
-- Extract SMILES strings for identified solvents.
-- Predict the activation stability of cleaned structures using a random forest model.
-- Upload, visualize, clean, and download CIF files through a Streamlit web interface.
 
 ## Bundled Models
 
 | `checkpoint` | Model file | Purpose |
 | --- | --- | --- |
-| `free` or an empty string | `ckpt/free_best.pth` | Remove free solvent; this is the default model |
+| `free` (default) | `ckpt/free_best.pth` | Remove free solvent |
 | `all` | `ckpt/all_best.pth` | Remove all solvent |
 | `stability` | `ckpt/stability_best.pkl` | Predict activation stability |
 
