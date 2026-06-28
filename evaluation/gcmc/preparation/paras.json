@@ -4,7 +4,7 @@
   "cutOffCoulomb": 12.0,
   "shifted": false,
   "tailCorrections": true,
-  "useCharge": false,
+  "useCharge": true,
   "Ac": {
     "framework": true,
     "mass": 227.0,

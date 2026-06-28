@@ -228,6 +228,7 @@ evaluation/draft
 evaluation/dataset
 evaluation/solvent/time
 evaluation/solvent/results
+figs
 
 # Kairui
 clean_dataset_test/
