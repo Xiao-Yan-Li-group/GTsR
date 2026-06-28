@@ -1,14 +1,44 @@
 from pathlib import Path
+import shutil
+import subprocess
 
 from setuptools import setup
+from setuptools.command.develop import develop
+from setuptools.command.install import install
 
 
 ROOT = Path(__file__).resolve().parent
 
 
+def install_conda_dependency():
+    conda_executable = shutil.which("conda")
+    if not conda_executable:
+        print(
+            "Warning: conda was not found. Please install "
+            "'conda-forge::zeopp-lsmo' manually."
+        )
+        return
+
+    subprocess.check_call(
+        [conda_executable, "install", "-y", "conda-forge::zeopp-lsmo"]
+    )
+
+
+class InstallWithConda(install):
+    def run(self):
+        install_conda_dependency()
+        super().run()
+
+
+class DevelopWithConda(develop):
+    def run(self):
+        install_conda_dependency()
+        super().run()
+
+
 setup(
     name="gtsr",
-    version="0.0.1",
+    version="0.0.2",
     description="Graph neural network tool for solvent removal from MOF structures",
     long_description=(ROOT / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
@@ -30,6 +60,10 @@ setup(
         ],
     },
     include_package_data=True,
+    cmdclass={
+        "install": InstallWithConda,
+        "develop": DevelopWithConda,
+    },
     install_requires=[
         "ase>=3.19",
         "numpy>=1.21",
