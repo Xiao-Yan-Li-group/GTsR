@@ -225,6 +225,7 @@ __marimo__/
 # Guobin
 evaluation/mlp/data
 evaluation/draft
+evaluation/writing
 evaluation/dataset
 evaluation/solvent/time
 evaluation/solvent/results
