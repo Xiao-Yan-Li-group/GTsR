@@ -101,7 +101,7 @@ Update the following entry when the associated publication becomes available:
 ```bibtex
 @article{
 doi:10.26434/chemrxiv.15006593/v1,
-author = {Guobin Zhao  and Kairui Liang  and Xiao-Yan Li },
+author = {Guobin Zhao and Kairui Liang and Xiao-Yan Li},
 title = {Stability-Aware Structural Cleaning of Metal–Organic Frameworks for Reliable Molecular Simulation and High-Throughput Screening},
 journal = {ChemRxiv},
 volume = {2026},
